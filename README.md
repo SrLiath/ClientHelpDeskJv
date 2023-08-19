@@ -50,12 +50,6 @@ menu.addMenuEvent(new MenuEvent() {
 
 - [Flatlaf github](https://github.com/JFormDesigner/FlatLaf)
 - [Flatlaf doc](https://www.formdev.com/flatlaf/customizing/)
-### Screenshot
-<img src="https://github.com/DJ-Raven/flatlaf-dashboard/assets/58245926/23ab0477-c11e-498d-92f9-37f6bfa944f6" alt="sample 1" width="350"/>
-<img src="https://github.com/DJ-Raven/flatlaf-dashboard/assets/58245926/44d1972b-b29b-4a11-8fdd-be7f27782e5b" alt="sample 1" width="350"/>
-</br>
-<img src="https://github.com/DJ-Raven/flatlaf-dashboard/assets/58245926/71c03d69-4508-43ea-86e6-2cba0c8e1dc8" alt="sample 1" width="350"/>
-<img src="https://github.com/DJ-Raven/flatlaf-dashboard/assets/58245926/fe793459-33b8-47e7-be06-385c3e4dfa37" alt="sample 1" width="350"/>
 
 ### Update Note
 - [27-05-2023] Add menu item title use `~` sign around your title name : `{"~YOUR TITLE NAME~"}`

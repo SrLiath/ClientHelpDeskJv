@@ -6,13 +6,23 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
+import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import javax.swing.SwingUtilities;
@@ -28,33 +38,12 @@ import raven.views.Login;
 
 
 public class Application extends javax.swing.JFrame {
-private class ResizeMouseListener extends MouseAdapter {
-    private int startX, startY;
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        startX = e.getX();
-        startY = e.getY();
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        int width = getWidth();
-        int height = getHeight();
-
-        int offsetX = e.getX() - startX;
-        int offsetY = e.getY() - startY;
-
-        setSize(width + offsetX, height + offsetY);
-
-        startX = e.getX();
-        startY = e.getY();
-    }
-}
-
+    private int mouseX, mouseY;
     private static Application app;
     private MainForm mainForm;
     public Application() {
+        ImageIcon icon = new ImageIcon(getClass().getResource("/raven/Interface/images/icon.png")); // Atualize o caminho conforme o local do ícone
+        setIconImage(icon.getImage());
         if (!authenticate()){
         initComponents();
         setSize(new Dimension(1200, 500));
@@ -68,13 +57,59 @@ private class ResizeMouseListener extends MouseAdapter {
         SwingUtilities.updateComponentTreeUI(mainForm);
         FlatAnimatedLafChange.hideSnapshotWithAnimation();
         Notifications.getInstance().setJFrame(this);
-        ResizeMouseListener resizeMouseListener = new ResizeMouseListener();
-        addMouseListener(resizeMouseListener);
-        addMouseMotionListener(resizeMouseListener);
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+            }
+        });
 
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int newX = getLocation().x + e.getX() - mouseX;
+                int newY = getLocation().y + e.getY() - mouseY;
+                setLocation(newX, newY);
+            }
+        });
+        tray();
         setResizable(true);
         }else{openLoginScreen();}
     }
+    
+public void tray() {
+    if (SystemTray.isSupported()) {
+        SystemTray tray = SystemTray.getSystemTray();
+        String iconPath = "/raven/Interface/images/icon.png"; // Atualize o caminho da imagem conforme necessário
+
+        Image iconImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource(iconPath));
+
+        PopupMenu popup = new PopupMenu();
+        MenuItem menuItem = new MenuItem("Sair");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        popup.add(menuItem);
+
+        TrayIcon trayIcon = new TrayIcon(iconImage, "Client Help Desk", popup);
+        trayIcon.setImageAutoSize(true);
+
+        try {
+            tray.add(trayIcon);
+            System.out.println("Ícone adicionado à bandeja do sistema.");
+        } catch (AWTException e) {
+            System.err.println("Erro ao adicionar ícone na bandeja do sistema: " + e.getMessage());
+            e.printStackTrace();
+        }
+    } else {
+        System.err.println("Bandeja do sistema não suportada.");
+    }
+}
+
+
   public boolean authenticate() {
     String jsonFilePath = "token.json";
 

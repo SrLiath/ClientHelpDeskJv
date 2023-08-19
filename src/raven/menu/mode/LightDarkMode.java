@@ -48,8 +48,8 @@ public class LightDarkMode extends JPanel {
         putClientProperty(FlatClientProperties.STYLE, ""
                 + "arc:999;"
                 + "background:$Menu.lightdark.background");
-        buttonLight = new JButton("Light", new FlatSVGIcon("raven/menu/mode/light.svg"));
-        buttonDark = new JButton("Dark", new FlatSVGIcon("raven/menu/mode/dark.svg"));
+        buttonLight = new JButton("Claro", new FlatSVGIcon("raven/menu/mode/light.svg"));
+        buttonDark = new JButton("Escuro", new FlatSVGIcon("raven/menu/mode/dark.svg"));
         buttonLighDark = new JButton();
         buttonLighDark.putClientProperty(FlatClientProperties.STYLE, ""
                 + "arc:999;"

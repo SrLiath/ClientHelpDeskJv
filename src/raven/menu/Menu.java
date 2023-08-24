@@ -90,8 +90,7 @@ public class Menu extends JPanel {
         setLayout(new MenuLayout());
         putClientProperty(FlatClientProperties.STYLE, ""
                 + "border:20,2,2,2;"
-                + "background:$Menu.background;"
-                + "arc:10");
+                + "background:$Menu.background;");
         header = new JLabel(headerName);
         ImageIcon originalIcon = new ImageIcon(getClass().getResource("/raven/interface/images/icone_sistema.png"));
          int newWidth = 32; // Nova largura desejada

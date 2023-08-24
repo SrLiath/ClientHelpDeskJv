@@ -30,44 +30,14 @@ public class MainForm extends JLayeredPane {
 
     public MainForm() {
         init();
+        setMenuFull(false);
     }
 
     private void init() {
-        setBorder(new EmptyBorder(0, 0, 0, 0));
+        setBorder(new EmptyBorder(0,0,0,0));
         setLayout(new MainFormLayout());
         menu = new Menu();
         panelBody = new JPanel(new BorderLayout());
-        JButton closeButton = new JButton("X");
-        JButton maximizeButton = new JButton("□");
-        JButton minimizeButton = new JButton("-");
-
-        // Adicione os botões ao canto superior direito do panelBody
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        buttonPanel.add(minimizeButton);
-        buttonPanel.add(maximizeButton);
-        buttonPanel.add(closeButton);
-
-        panelBody.add(buttonPanel, BorderLayout.NORTH);
-
-        closeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Application.close();
-            }
-        });
-
-        maximizeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Application.maximize();
-            }
-        });
-
-        minimizeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Application.minimize();
-            }
-        });
-
         initMenuArrowIcon();
         menuButton.putClientProperty(FlatClientProperties.STYLE, ""
                 + "background:$Menu.button.background;"
@@ -99,8 +69,11 @@ public class MainForm extends JLayeredPane {
     }
 
     private void initMenuEvent() {
+
         menu.addMenuEvent((int index, int subIndex, MenuAction action) -> {
+
             // Application.mainForm.showForm(new DefaultForm("Form : " + index + " " + subIndex));
+            
             if (index == 0) {
                 Application.showForm(new FormDashboard());
             } else if (index == 1) {
@@ -195,7 +168,7 @@ public class MainForm extends JLayeredPane {
                     menubX = (int) (menuX - (menuButtonWidth * (menu.isMenuFull() ? 0.5f : 0.7f)));
                 }
                 menuButton.setBounds(menubX, UIScale.scale(30), menuButtonWidth, menuButtonHeight);
-                int gap = UIScale.scale(5);
+                int gap = UIScale.scale(0);
                 int bodyWidth = width - menuWidth - gap;
                 int bodyHeight = height;
                 int bodyx = ltr ? (x + menuWidth + gap) : x;

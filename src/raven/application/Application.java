@@ -20,13 +20,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import javax.swing.SwingUtilities;
 import raven.application.form.MainForm;
+import raven.application.form.other.FormDashboard;
 import raven.controllers.Json;
 import raven.toast.Notifications;
 import raven.views.Login;
@@ -46,12 +50,13 @@ public class Application extends javax.swing.JFrame {
         setIconImage(icon.getImage());
         if (!authenticate()){
         initComponents();
-        setSize(new Dimension(1200, 500));
+        setSize(new Dimension(900, 500));
         setLocationRelativeTo(null);
         
         mainForm = new MainForm();
         FlatAnimatedLafChange.showSnapshot();
         setContentPane(mainForm);
+        
         mainForm.applyComponentOrientation(getComponentOrientation());
         mainForm.hideMenu();
         SwingUtilities.updateComponentTreeUI(mainForm);
@@ -78,36 +83,76 @@ public class Application extends javax.swing.JFrame {
         }else{openLoginScreen();}
     }
     
-public void tray() {
-    if (SystemTray.isSupported()) {
-        SystemTray tray = SystemTray.getSystemTray();
-        String iconPath = "/raven/Interface/images/icon.png"; // Atualize o caminho da imagem conforme necessário
+ public void tray() {
+        if (SystemTray.isSupported()) {
+            try {
+                SystemTray tray = SystemTray.getSystemTray();
+                String iconPath = "/raven/Interface/images/icon.png"; // Atualize o caminho da imagem conforme necessário
+                InputStream iconStream = getClass().getResourceAsStream(iconPath);
+                BufferedImage originalImage = ImageIO.read(iconStream);
 
-        Image iconImage = Toolkit.getDefaultToolkit().getImage(getClass().getResource(iconPath));
+                // Definir as dimensões desejadas para o ícone do tray
+                int trayIconWidth = 16;
+                int trayIconHeight = 16;
 
-        PopupMenu popup = new PopupMenu();
-        MenuItem menuItem = new MenuItem("Sair");
-        menuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                // Redimensionar a imagem para o tamanho do ícone do tray
+                Image resizedIcon = originalImage.getScaledInstance(trayIconWidth, trayIconHeight, Image.SCALE_SMOOTH);
+
+
+                    PopupMenu popup = new PopupMenu();
+                    MenuItem openItem = new MenuItem("Abrir");
+                    openItem.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            setState(JFrame.NORMAL);
+                            setVisible(true);
+                        }
+                    });
+                    popup.add(openItem);
+
+                    MenuItem exitItem = new MenuItem("Sair");
+                    exitItem.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            System.exit(0);
+                        }
+                    });
+                    popup.add(exitItem);
+                    TrayIcon trayIcon = new TrayIcon(resizedIcon, "Client Help Desk", popup);
+                    trayIcon.setImageAutoSize(true);
+                    trayIcon.addMouseListener(new MouseAdapter() {
+            private long lastClickTime = 0;
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                long currentTime = System.currentTimeMillis();
+
+                if (currentTime - lastClickTime <= 500) { // Detecta um duplo clique dentro de 500ms
+                    if (e.getButton() == MouseEvent.BUTTON1) { // Botão esquerdo do mouse
+                        // Lidar com o duplo clique aqui
+                            setState(JFrame.NORMAL);
+                            setVisible(true);
+                            setState(JFrame.NORMAL);
+                            setVisible(true);
+                    }
+                }
+
+                lastClickTime = currentTime;
             }
         });
-        popup.add(menuItem);
 
-        TrayIcon trayIcon = new TrayIcon(iconImage, "Client Help Desk", popup);
-        trayIcon.setImageAutoSize(true);
-
-        try {
-            tray.add(trayIcon);
-            System.out.println("Ícone adicionado à bandeja do sistema.");
-        } catch (AWTException e) {
-            System.err.println("Erro ao adicionar ícone na bandeja do sistema: " + e.getMessage());
-            e.printStackTrace();
+                    try {
+                        tray.add(trayIcon);
+                        System.out.println("Ícone adicionado à bandeja do sistema.");
+                    } catch (AWTException e) {
+                        System.err.println("Erro ao adicionar ícone na bandeja do sistema: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }catch(IOException e) {
+                e.printStackTrace();
+    }} else {
+            System.err.println("Bandeja do sistema não suportada.");
         }
-    } else {
-        System.err.println("Bandeja do sistema não suportada.");
     }
-}
+
 
 
   public boolean authenticate() {
@@ -128,12 +173,7 @@ public void tray() {
         String userToken = jsonObject.get("user_Token").asText();
         String appToken = jsonObject.get("app_Token").asText();
 
-        if (userToken.isEmpty() || appToken.isEmpty() || !Json.hasSessionToken() || !Json.checkSession()) {
-          
-            return true;
-        }
-        
-        return false;
+        return userToken.isEmpty() || appToken.isEmpty() || !Json.hasSessionToken() || !Json.checkSession() || !Json.getSession();
         
     } catch (IOException e) {
         e.printStackTrace();
@@ -184,7 +224,9 @@ private void openLoginScreen() {
     }
 
           public static void close() {
-        System.exit(0);
+        app.setState(JFrame.ICONIFIED);
+               app.setVisible(false); // Ocultar a janela
+
     }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
@@ -214,6 +256,7 @@ private void openLoginScreen() {
             app = new Application();
             if (!app.authenticate()){
                 app.setVisible(true);
+                showForm(new FormDashboard());
             }
             
 

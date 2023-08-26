@@ -42,12 +42,19 @@
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JPanel" name="jPanel1">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="Color corFundo = new Color(66, 71, 76); // Vermelho&#xa;        jPanel1.setBackground(corFundo);"/>
+      </AuxValues>
 
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace pref="731" max="32767" attributes="0"/>
+                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                  <Component id="terminalt" min="-2" pref="17" max="-2" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
                   <Component id="btnMin" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   <Component id="btnMax" min="-2" pref="25" max="-2" attributes="0"/>
@@ -58,9 +65,18 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="btnMin" min="-2" pref="25" max="-2" attributes="0"/>
-              <Component id="btnMax" alignment="0" min="-2" pref="25" max="-2" attributes="0"/>
               <Component id="btnX" alignment="0" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="terminalt" alignment="1" min="-2" pref="25" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="jLabel2" max="32767" attributes="0"/>
+                          <Component id="btnMin" alignment="1" pref="25" max="32767" attributes="0"/>
+                          <Component id="btnMax" alignment="1" pref="25" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+              </Group>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -89,6 +105,19 @@
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnXMouseClicked"/>
           </Events>
         </Component>
+        <Component class="javax.swing.JLabel" name="jLabel2">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Segoe UI" size="12" style="1"/>
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="cc" green="cc" red="cc" type="rgb"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Cliente Help Desk"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="terminalt">
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="filtroBar">
@@ -100,7 +129,7 @@
                   <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                   <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jComboBox1" min="-2" pref="116" max="-2" attributes="0"/>
+                  <Component id="jComboBox1" min="-2" pref="167" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="jButton2" min="-2" pref="91" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
@@ -130,11 +159,13 @@
         <Component class="javax.swing.JComboBox" name="jComboBox1">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-              <StringArray count="4">
-                <StringItem index="0" value="Item 1"/>
-                <StringItem index="1" value="Item 2"/>
-                <StringItem index="2" value="Item 3"/>
-                <StringItem index="3" value="Item 4"/>
+              <StringArray count="6">
+                <StringItem index="0" value="Todos"/>
+                <StringItem index="1" value="Em atendimento (atribu&#xed;do)"/>
+                <StringItem index="2" value="Em atendimento (planejado)"/>
+                <StringItem index="3" value="Pendente"/>
+                <StringItem index="4" value="Solucionado"/>
+                <StringItem index="5" value="Fechado"/>
               </StringArray>
             </Property>
           </Properties>
@@ -159,7 +190,7 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jScrollPane1" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="788" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -182,18 +213,13 @@
           <SubComponents>
             <Component class="javax.swing.JTable" name="chamados">
               <Properties>
-                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                  <Table columnCount="4" rowCount="4">
-                    <Column editable="true" title="Title 1" type="java.lang.Object"/>
-                    <Column editable="true" title="Title 2" type="java.lang.Object"/>
-                    <Column editable="true" title="Title 3" type="java.lang.Object"/>
-                    <Column editable="true" title="Title 4" type="java.lang.Object"/>
-                  </Table>
+                <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;    },&#xa;    new String [] {&#xa;        &quot;Id&quot;, &quot;Titulo&quot;, &quot;Status&quot;, &quot;Tempo atendimento&quot;, &quot;Tempo solu&#xe7;&#xe3;o&quot;, &quot;Categoria&quot;, &quot;Data cria&#xe7;&#xe3;o&quot;, &quot;Ultima atualiza&#xe7;&#xe3;o&quot;&#xa;    }&#xa;)" type="code"/>
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" value=""/>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="chamados.setEnabled(false);"/>
+                <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="Map&lt;Integer, String&gt; statusMap = new HashMap&lt;&gt;();&#xa;        statusMap.put(1, &quot;Novo&quot;);&#xa;        statusMap.put(2, &quot;Em Andamento (atribu&#xed;do)&quot;);&#xa;        statusMap.put(3, &quot;Em Andamento (planejado)&quot;);&#xa;        statusMap.put(4, &quot;Pendente&quot;);&#xa;        statusMap.put(5, &quot;Solucionado&quot;);&#xa;        statusMap.put(6, &quot;Fechado&quot;);&#xa;&#xa;        // Create a custom cell renderer for the &quot;Status&quot; column&#xa;        chamados.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {&#xa;            {&#xa;                setHorizontalAlignment(SwingConstants.CENTER);&#xa;            }&#xa;&#xa;            @Override&#xa;            public Component getTableCellRendererComponent(&#xa;                    JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {&#xa;                Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);&#xa;&#xa;                // Check if the row has content&#xa;                boolean hasContent = false;&#xa;                for (int col = 0; col &lt; table.getColumnCount(); col++) {&#xa;                    if (table.getValueAt(row, col) != null) {&#xa;                        hasContent = true;&#xa;                        break;&#xa;                    }&#xa;                }&#xa;&#xa;                // Set the background color based on whether the row has content&#xa;                if (hasContent) {&#xa;                    component.setBackground(new Color(0xC3D7EF));&#xa;                    // Set the left border for the first column&#xa;                    if (column == 0 &amp;&amp; component instanceof JComponent) {&#xa;                        Border border = BorderFactory.createMatteBorder(0, 3, 0, 0, new Color(0x00E300));&#xa;                        ((JComponent) component).setBorder(border);&#xa;                    }&#xa;                } else {&#xa;                    component.setBackground(table.getBackground());&#xa;                    if (component instanceof JComponent) {&#xa;                        ((JComponent) component).setBorder(null); // Remove border for cells without content&#xa;                    }&#xa;                }&#xa;&#xa;                // Set the text color to black&#xa;                component.setForeground(Color.BLACK);&#xa;&#xa;                // Replace the status value with the corresponding string from the map&#xa;                if (column == 2 &amp;&amp; value != null) { // Assuming &quot;Status&quot; column is at index 2&#xa;                    int statusValue = Integer.parseInt(value.toString());&#xa;                    String statusString = statusMap.get(statusValue);&#xa;                    if (statusString != null) {&#xa;                        setText(statusString);&#xa;                    }&#xa;                }&#xa;&#xa;                return component;&#xa;            }&#xa;        });&#xa;chamados.setRowHeight(40);&#xa;jScrollPane1.setViewportView(chamados);&#xa;chamados.setEnabled(false);"/>
                 <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="FormDashboard_chamados"/>
               </AuxValues>
             </Component>

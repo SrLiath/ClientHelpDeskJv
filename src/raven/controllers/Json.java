@@ -8,9 +8,23 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Json {
     public static boolean checkSession() {
@@ -152,4 +166,131 @@ public class Json {
        
      }
 
+      public static String getA() {
+        String appToken = null;
+
+        try {
+            // Cria um ObjectMapper para ler JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Lê o arquivo JSON e converte para um JsonNode
+            JsonNode jsonNode = objectMapper.readTree(new File("token.json"));
+
+            // Obtém o valor do app_Token do JsonNode
+            appToken = jsonNode.get("app_Token").asText();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return appToken;
+    }
+      
+     public static String getS() {
+        String sessionToken = null;
+
+        try {
+            // Cria um ObjectMapper para ler JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Lê o arquivo JSON e converte para um JsonNode
+            JsonNode jsonNode = objectMapper.readTree(new File("token.json"));
+
+            // Obtém o valor do app_Token do JsonNode
+            sessionToken = jsonNode.get("session_token").asText();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return sessionToken;
+    }
+     
+      public static String getU() {
+        String userToken = null;
+
+        try {
+            // Cria um ObjectMapper para ler JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Lê o arquivo JSON e converte para um JsonNode
+            JsonNode jsonNode = objectMapper.readTree(new File("token.json"));
+
+            // Obtém o valor do app_Token do JsonNode
+            userToken = jsonNode.get("user_Token").asText();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return userToken;
+    }
+         public static String getUrl() {
+        String url = null;
+
+        try {
+            // Cria um ObjectMapper para ler JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            // Lê o arquivo JSON e converte para um JsonNode
+            JsonNode jsonNode = objectMapper.readTree(new File("token.json"));
+
+            // Obtém o valor do app_Token do JsonNode
+            url = jsonNode.get("url").asText();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+ public static String makeGetRequest(String baseUrl, String sessionToken, String appToken, String userToken) throws IOException, URISyntaxException {
+    try {
+        HttpClient httpClient = HttpClients.createDefault();
+        
+        // Construct the URL with parameters
+        URIBuilder uriBuilder = new URIBuilder(baseUrl);
+        uriBuilder.addParameter("session_token", sessionToken);
+        uriBuilder.addParameter("app_token", appToken);
+        uriBuilder.addParameter("user_token", userToken);
+        
+        
+        HttpGet httpGet = new HttpGet(uriBuilder.build());
+
+        httpGet.setHeader("Accept", "*/*");
+        httpGet.setHeader("Accept-Encoding", "gzip, deflate, br");
+        httpGet.setHeader("Connection", "keep-alive");
+
+        HttpResponse response = httpClient.execute(httpGet);
+
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == 200) {
+            return EntityUtils.toString(response.getEntity());
+        } else {
+            System.out.println("Request failed with status code: " + statusCode);
+            return EntityUtils.toString(response.getEntity());
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
+public static String makeCategory(String categoria) {
+        try {
+            // Carregar o conteúdo do arquivo JSON
+            FileReader reader = new FileReader("config.json");
+            JSONTokener tokener = new JSONTokener(reader);
+            JSONArray json = new JSONArray(tokener);
+            
+            // Iterar através do JSON e procurar a categoria correspondente
+            for (int i = 0; i < json.length(); i++) {
+                JSONObject jsonObject = json.getJSONObject(i);
+                int id = jsonObject.getInt("id");
+                String completename = jsonObject.getString("completename");
+                if (id == Integer.parseInt(categoria)) {
+                    return completename;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

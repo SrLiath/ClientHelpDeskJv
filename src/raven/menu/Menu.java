@@ -93,8 +93,8 @@ public class Menu extends JPanel {
                 + "background:$Menu.background;");
         header = new JLabel(headerName);
         ImageIcon originalIcon = new ImageIcon(getClass().getResource("/raven/interface/images/icone_sistema.png"));
-         int newWidth = 32; // Nova largura desejada
-            int newHeight = 32; // Nova altura desejada
+         int newWidth = 45; // Nova largura desejada
+            int newHeight = 45; // Nova altura desejada
             Icon resizedIcon = resizeIcon(originalIcon, newWidth, newHeight);
 
             // Redimensionar o ícone

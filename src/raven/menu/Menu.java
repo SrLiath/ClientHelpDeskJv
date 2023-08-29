@@ -28,10 +28,9 @@ import javax.swing.JScrollPane;
 public class Menu extends JPanel {
 
     private final String menuItems[][] = {
-        {"~Menu~"},
-        {"Dados"},
-        {"~WEB APP~"},
-        {"Chamados", "Ver chamados", "Abrir chamado"},
+        {"~Lista~"},
+        {"Chamados"},
+        {"Chamados"},
 
     };
 

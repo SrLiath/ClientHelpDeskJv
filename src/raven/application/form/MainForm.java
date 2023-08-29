@@ -87,13 +87,7 @@ public class MainForm extends JLayeredPane {
                     Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else if (index == 1) {
-                if (subIndex == 1) {
                     Application.showForm(new FormInbox());
-                } else if (subIndex == 2) {
-                    Application.showForm(new FormRead());
-                } else {
-                    action.cancel();
-                }
             } else if (index == 9) {
                 Application.logout();
             } else {

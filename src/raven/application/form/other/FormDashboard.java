@@ -1,6 +1,7 @@
 package raven.application.form.other;
 
 
+import com.formdev.flatlaf.FlatClientProperties;
 import java.awt.Image;
 import java.awt.Color;
 import java.awt.Component;
@@ -32,6 +33,7 @@ import javax.swing.JDialog;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import raven.application.Application;
+import raven.controllers.Dicio;
 
 /**
  *
@@ -103,7 +105,7 @@ public class FormDashboard extends javax.swing.JPanel {
         String tempoSolucao = jsonData.optString("solucao", "");
         String categoria = jsonData.optString("itilcategories_id", "");
           try {
-            categoria = Json.makeCategory(categoria);
+            categoria = Dicio.makeCategory(categoria);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,6 +148,8 @@ Object id = chamados.getValueAt(row, 0);
                 Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
             } catch (URISyntaxException ex) {
                 Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ParseException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
             }
 
 
@@ -154,7 +158,7 @@ Object id = chamados.getValueAt(row, 0);
 });
 
 
-
+Bar.putClientProperty(FlatClientProperties.STYLE,"background: $Bar.background;");
 
     }
     
@@ -164,7 +168,7 @@ Object id = chamados.getValueAt(row, 0);
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        Bar = new javax.swing.JPanel();
         btnMin = new javax.swing.JLabel();
         btnMax = new javax.swing.JLabel();
         btnX = new javax.swing.JLabel();
@@ -193,11 +197,11 @@ Object id = chamados.getValueAt(row, 0);
         jLabel2.setForeground(new java.awt.Color(204, 204, 204));
         jLabel2.setText("Cliente Help Desk");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout BarLayout = new javax.swing.GroupLayout(Bar);
+        Bar.setLayout(BarLayout);
+        BarLayout.setHorizontalGroup(
+            BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(BarLayout.createSequentialGroup()
                 .addGap(3, 3, 3)
                 .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -209,13 +213,13 @@ Object id = chamados.getValueAt(row, 0);
                 .addGap(0, 0, 0)
                 .addComponent(btnX, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        BarLayout.setVerticalGroup(
+            BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(btnX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(BarLayout.createSequentialGroup()
+                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
                         .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)))
@@ -266,14 +270,6 @@ Object id = chamados.getValueAt(row, 0);
         ));
         chamados.setToolTipText("");
         jScrollPane1.setViewportView(chamados);
-        Map<Integer, String> statusMap = new HashMap<>();
-        statusMap.put(1, "Novo");
-        statusMap.put(2, "Em Andamento (atribuído)");
-        statusMap.put(3, "Em Andamento (planejado)");
-        statusMap.put(4, "Pendente");
-        statusMap.put(5, "Solucionado");
-        statusMap.put(6, "Fechado");
-
         // Create a custom cell renderer for the "Status" column
         chamados.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             {
@@ -315,7 +311,7 @@ Object id = chamados.getValueAt(row, 0);
                 // Replace the status value with the corresponding string from the map
                 if (column == 2 && value != null) { // Assuming "Status" column is at index 2
                     int statusValue = Integer.parseInt(value.toString());
-                    String statusString = statusMap.get(statusValue);
+                    String statusString = Dicio.getStatus(statusValue);
                     if (statusString != null) {
                         setText(statusString);
                     }
@@ -347,7 +343,7 @@ Object id = chamados.getValueAt(row, 0);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(Bar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -358,7 +354,7 @@ Object id = chamados.getValueAt(row, 0);
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(Bar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(filtroBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -367,7 +363,7 @@ Object id = chamados.getValueAt(row, 0);
         );
 
         Color corFundo = new Color(66, 71, 76); // Vermelho
-        jPanel1.setBackground(corFundo);
+        Bar.setBackground(corFundo);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnXMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnXMouseClicked
@@ -379,6 +375,7 @@ Object id = chamados.getValueAt(row, 0);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel Bar;
     private javax.swing.JLabel btnMax;
     private javax.swing.JLabel btnMin;
     private javax.swing.JLabel btnX;
@@ -388,7 +385,6 @@ Object id = chamados.getValueAt(row, 0);
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel terminalt;

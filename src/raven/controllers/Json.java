@@ -272,25 +272,26 @@ public class Json {
     }
 }
 
-public static String makeCategory(String categoria) {
-        try {
-            // Carregar o conteúdo do arquivo JSON
-            FileReader reader = new FileReader("config.json");
-            JSONTokener tokener = new JSONTokener(reader);
-            JSONArray json = new JSONArray(tokener);
-            
-            // Iterar através do JSON e procurar a categoria correspondente
-            for (int i = 0; i < json.length(); i++) {
-                JSONObject jsonObject = json.getJSONObject(i);
-                int id = jsonObject.getInt("id");
-                String completename = jsonObject.getString("completename");
-                if (id == Integer.parseInt(categoria)) {
-                    return completename;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+public static String getTecnico(String id, String own) throws IOException, URISyntaxException {
+    String detalhes = Json.makeGetRequest(getUrl() + "Ticket/" + id + "/Ticket_User/", getS(), getA(), getU());
+    JSONArray detalhesArray = new JSONArray(detalhes);
+
+    for (int i = 0; i < detalhesArray.length(); i++) {
+        JSONObject detalhesJSON = detalhesArray.getJSONObject(i);
+        int userId = detalhesJSON.optInt("users_id", -1);
+
+        if (userId != -1 && !Integer.toString(userId).equals(own)) {
+            String tecnicoDetalhes = Json.makeGetRequest(getUrl() + "User/" + userId, getS(), getA(), getU());
+            JSONObject tecnicoDetalhesJSON = new JSONObject(tecnicoDetalhes);
+            String nomeTecnico = tecnicoDetalhesJSON.optString("firstname", "");
+            String sobrenomeTecnico = tecnicoDetalhesJSON.optString("realname", "");
+            return nomeTecnico + " " + sobrenomeTecnico;
+
         }
-        return null;
     }
+
+    return "não atribuído";
+}
+
+
 }

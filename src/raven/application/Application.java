@@ -10,9 +10,13 @@ import java.awt.AWTException;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -50,12 +54,14 @@ public class Application extends javax.swing.JFrame {
     private int mouseX, mouseY;
     private static Application app;
     private MainForm mainForm;
+    private static Dimension originalSize = new Dimension(900, 500);
+     
     public Application() {
         ImageIcon icon = new ImageIcon(getClass().getResource("/raven/Interface/images/icon.png")); // Atualize o caminho conforme o local do ícone
         setIconImage(icon.getImage());
         if (!authenticate()){
         initComponents();
-        setSize(new Dimension(900, 500));
+        setSize(new Dimension(1000, 520));
         setLocationRelativeTo(null);
         
         mainForm = new MainForm();
@@ -185,7 +191,7 @@ public class Application extends javax.swing.JFrame {
 
         String userToken = jsonObject.get("user_Token").asText();
         String appToken = jsonObject.get("app_Token").asText();
-
+        Json.getSession();
         return userToken.isEmpty() || appToken.isEmpty() || !Json.hasSessionToken() || !Json.checkSession() || !Json.getSession();
         
     } catch (IOException e) {
@@ -224,14 +230,25 @@ private void openLoginScreen() {
     public static void setSelectedMenu(int index, int subIndex) {
         app.mainForm.setSelectedMenu(index, subIndex);
     }
-    public static void maximize() {
-    int currentState = app.getExtendedState();
-    if ((currentState & JFrame.MAXIMIZED_BOTH) == 0) {
-        app.setExtendedState(currentState | JFrame.MAXIMIZED_BOTH); // Maximize
-    } else {
-        app.setExtendedState(currentState & ~JFrame.MAXIMIZED_BOTH); // Restore
+public static void maximize() {
+        if (app.getSize().equals(originalSize)) {
+            GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice screenDevice = environment.getDefaultScreenDevice();
+            Rectangle screenBounds = screenDevice.getDefaultConfiguration().getBounds();
+
+            // Calculate available height (screen height minus taskbar height)
+            Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(screenDevice.getDefaultConfiguration());
+            int availableHeight = screenBounds.height - screenInsets.bottom;
+
+            // Maximize the JFrame size
+            app.setSize(screenBounds.width, availableHeight);
+            app.setLocationRelativeTo(null);
+        } else {
+            // Restore original size and location
+            app.setSize(originalSize);
+            app.setLocationRelativeTo(null);
+        }
     }
-}
         public static void minimize() {
         app.setExtendedState(JFrame.ICONIFIED);
     }

@@ -1,6 +1,7 @@
 package raven.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedReader;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -16,8 +17,12 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.HttpEntity;
@@ -240,7 +245,50 @@ public class Json {
 
         return url;
     }
- public static String makeGetRequest(String baseUrl, String sessionToken, String appToken, String userToken) throws IOException, URISyntaxException {
+         
+  public static String makeGetRequestPanel(String baseUrl, String sessionToken, String appToken, String userToken, String filtro) throws IOException, URISyntaxException {
+        try {
+            System.out.println(filtro);
+            HttpClient httpClient = HttpClients.createDefault();
+
+            // Construct the URL with parameters
+            URIBuilder uriBuilder = new URIBuilder(baseUrl);
+            uriBuilder.addParameter("session_token", sessionToken);
+            uriBuilder.addParameter("app_token", appToken);
+            uriBuilder.addParameter("user_token", userToken);
+            uriBuilder.addParameter("criteria[1][field]", "4");
+            uriBuilder.addParameter("criteria[1][searchtype]", "equals");
+            uriBuilder.addParameter("criteria[1][value]", Integer.toString(getOwnId()));
+            uriBuilder.addParameter("criteria[0][field]", "12");
+            uriBuilder.addParameter("criteria[0][searchtype]", "equals");
+            uriBuilder.addParameter("criteria[0][value]", filtro);
+            uriBuilder.addParameter("criteria[2][field]", "1");
+            uriBuilder.addParameter("criteria[2][searchtype]", "contains");
+            uriBuilder.addParameter("criteria[2][value]", java.net.InetAddress.getLocalHost().getHostName());
+            uriBuilder.addParameter("order", "DESC");
+            uriBuilder.addParameter("sort", "2");
+            uriBuilder.addParameter("range", "0-100");
+
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+
+            httpGet.setHeader("Accept", "*/*");
+            httpGet.setHeader("Accept-Encoding", "gzip, deflate, br");
+            httpGet.setHeader("Connection", "keep-alive");
+
+            HttpResponse response = httpClient.execute(httpGet);
+
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                return EntityUtils.toString(response.getEntity());
+            } else {
+                return EntityUtils.toString(response.getEntity());
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+  
+public static String makeGetRequest(String baseUrl, String sessionToken, String appToken, String userToken) throws IOException, URISyntaxException {
     try {
         HttpClient httpClient = HttpClients.createDefault();
         
@@ -271,6 +319,53 @@ public class Json {
         return null;
     }
 }
+ 
+ public static String sendTicket(String url, String body) {
+        try {
+            URL apiUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) apiUrl.openConnection();
+
+            // Configurar o método HTTP para POST
+            connection.setRequestMethod("POST");
+
+            // Definir os headers da requisição, se necessário
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", "user_token " + getU());
+            connection.setRequestProperty("App-Token", getA());
+            connection.setRequestProperty("Session-Token", getS());
+            connection.setRequestProperty("Connection", "keep-alive");
+
+            // Habilitar o envio do corpo da requisição
+            connection.setDoOutput(true);
+
+            // Escrever o corpo da requisição no OutputStream
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = body.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            // Obter a resposta da requisição
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+
+            // Ler a resposta do servidor
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+
+            // Fechar a conexão
+            connection.disconnect();
+
+            return response.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 public static String getTecnico(String id, String own) throws IOException, URISyntaxException {
     String detalhes = Json.makeGetRequest(getUrl() + "Ticket/" + id + "/Ticket_User/", getS(), getA(), getU());
@@ -293,5 +388,16 @@ public static String getTecnico(String id, String own) throws IOException, URISy
     return "não atribuído";
 }
 
+public static Integer getOwnId() throws IOException, URISyntaxException{
+    String detalhes = Json.makeGetRequest(getUrl() + "getFullSession/", getS(), getA(), getU());
+    JSONObject detalhesJSON = new JSONObject(detalhes);
+    System.out.println(detalhesJSON);
+    JSONObject sessionJSON = detalhesJSON.getJSONObject("session"); 
+    String idString = sessionJSON.optString("glpiID", ""); 
+
+
+    int id = Integer.parseInt(idString);
+    return id;
+}
 
 }

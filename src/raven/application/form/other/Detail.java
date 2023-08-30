@@ -1,6 +1,8 @@
 package raven.application.form.other;
 
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import com.formdev.flatlaf.FlatClientProperties;
 import java.awt.Image;
 import java.awt.Color;
@@ -19,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import org.json.JSONException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -35,6 +38,16 @@ import org.json.JSONObject;
 import raven.application.Application;
 import raven.controllers.Dicio;
 import raven.controllers.Json;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+
+
 
 /**
  *
@@ -56,6 +69,10 @@ public class Detail extends javax.swing.JPanel {
         String urgency = detalhesJSON.optString("urgency", "");
         String ownId = detalhesJSON.optString("users_id_recipient", "");
         String status = detalhesJSON.optString("status", "");
+        String tituloChat = detalhesJSON.optString("name", "");
+        String textContentChat = detalhesJSON.optString("content", "");
+        
+
 
         
         dataCriacaoc = inputDateFormat.parse(dataCriacaoStr);
@@ -72,8 +89,64 @@ public class Detail extends javax.swing.JPanel {
         urgenciaChamado.setText(urgency);
         String tecnico = Json.getTecnico(id, ownId);
         tecnicoResponsavel.setText(tecnico);
+        tecnicoDetail.setText(tecnico);
+        tituloDetail.setText(tituloChat);
         statusChamado.setText(status);
-        
+        textChat.setText(textContentChat);
+if (tecnico != null && !tecnico.isEmpty()) {
+    String detalhesTecnicos = Json.makeGetRequest(Json.getUrl() + "Ticket/" + id + "/ITILFollowup/", Json.getS(), Json.getA(), Json.getU());
+    JSONArray tecnicoDetalhesArray = new JSONArray(detalhesTecnicos);
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    // Converter JSONArray em uma lista de objetos JSON
+    List<JSONObject> tecnicoDetalhesList = new ArrayList<>();
+    for (int i = 0; i < tecnicoDetalhesArray.length(); i++) {
+        tecnicoDetalhesList.add(tecnicoDetalhesArray.getJSONObject(i));
+    }
+
+    if (!tecnicoDetalhesList.isEmpty()) {
+        // Ordenar a lista com base na data
+        tecnicoDetalhesList.sort(Comparator.comparing(o -> {
+            try {
+                return dateFormat.parse(o.getString("date"));
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }));
+
+        // Obter o último item da lista ordenada
+        JSONObject ultimoItem = tecnicoDetalhesList.get(tecnicoDetalhesList.size() - 1);
+        String ultimaData = ultimoItem.getString("date");
+
+        // Construir o conteúdo formatado
+        StringBuilder formattedContent = new StringBuilder();
+        for (JSONObject item : tecnicoDetalhesList) {
+            String content = item.getString("content");
+            
+            // Decodificar caracteres HTML usando Jsoup
+            Document doc = Jsoup.parse(content);
+            String decodedContent = doc.text();
+            
+            formattedContent.append(decodedContent).append("\n\n");
+        }
+
+        // Construir a saída formatada
+        StringBuilder formattedOutput = new StringBuilder();
+        formattedOutput.append("Última data: ").append(ultimaData).append("\n").append("-------------\n").append(formattedContent);
+
+        // Definir o texto formatado em respChat.setText()
+        String formattedText = formattedOutput.toString();
+        respChat.setText(formattedText);
+    } else {
+        // Se a lista estiver vazia, não há detalhes disponíveis
+        respChat.setText("Sem detalhes disponíveis.");
+    }
+} else {
+    // Se tecnico for nulo ou vazio, não há operações a serem realizadas
+    respChat.setText("Nenhum valor técnico disponível.");
+}
+
         
 
         if (!detalhesJSON.isNull("time_to_own")) {
@@ -146,6 +219,7 @@ public class Detail extends javax.swing.JPanel {
         });
         detailTicket.putClientProperty(FlatClientProperties.STYLE,"background: $Panel.right.background;");
         Bar.putClientProperty(FlatClientProperties.STYLE,"background: $Bar.background;");
+        
 
 
 
@@ -185,6 +259,13 @@ public class Detail extends javax.swing.JPanel {
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         chatTicket = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textChat = new javax.swing.JTextArea();
+        jLabel12 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        respChat = new javax.swing.JTextArea();
+        tecnicoDetail = new javax.swing.JLabel();
+        tituloDetail = new javax.swing.JLabel();
 
         btnMin.setFont(new java.awt.Font("Roboto Black", 1, 24)); // NOI18N
 
@@ -347,7 +428,7 @@ public class Detail extends javax.swing.JPanel {
                 .addGroup(detailTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(statusChamado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11))
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addContainerGap(68, Short.MAX_VALUE))
         );
 
         originalColor = jLabel3.getForeground(); // Armazena a cor original
@@ -364,15 +445,61 @@ public class Detail extends javax.swing.JPanel {
             }
         });
 
+        textChat.setColumns(20);
+        textChat.setRows(5);
+        jScrollPane1.setViewportView(textChat);
+        textChat.setEditable(false);
+
+        respChat.setColumns(20);
+        respChat.setRows(5);
+        jScrollPane2.setViewportView(respChat);
+        respChat.setEditable(false);
+
+        tecnicoDetail.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        tecnicoDetail.setText("Não atribuido");
+
+        tituloDetail.setFont(new java.awt.Font("Segoe UI", 3, 14)); // NOI18N
+        tituloDetail.setText("Titulo");
+
         javax.swing.GroupLayout chatTicketLayout = new javax.swing.GroupLayout(chatTicket);
         chatTicket.setLayout(chatTicketLayout);
         chatTicketLayout.setHorizontalGroup(
             chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(chatTicketLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(chatTicketLayout.createSequentialGroup()
+                        .addGroup(chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(tecnicoDetail))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, chatTicketLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, chatTicketLayout.createSequentialGroup()
+                                .addComponent(tituloDetail)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel12))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
         chatTicketLayout.setVerticalGroup(
             chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(chatTicketLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(chatTicketLayout.createSequentialGroup()
+                        .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(21, 21, 21))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, chatTicketLayout.createSequentialGroup()
+                        .addComponent(tituloDetail)
+                        .addGap(0, 0, 0)))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(37, 37, 37)
+                .addComponent(tecnicoDetail)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout detailLayout = new javax.swing.GroupLayout(detail);
@@ -396,9 +523,7 @@ public class Detail extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Bar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(detail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(detail, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -424,6 +549,8 @@ public class Detail extends javax.swing.JPanel {
             Logger.getLogger(Detail.class.getName()).log(Level.SEVERE, null, ex);
         } catch (URISyntaxException ex) {
             Logger.getLogger(Detail.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParseException ex) {
+            Logger.getLogger(Detail.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel3MouseClicked
 
@@ -440,6 +567,7 @@ public class Detail extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -448,11 +576,17 @@ public class Detail extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea respChat;
     private javax.swing.JTextField statusChamado;
+    private javax.swing.JLabel tecnicoDetail;
     private javax.swing.JTextField tecnicoResponsavel;
     private javax.swing.JTextField tempoAtendimento;
     private javax.swing.JTextField tempoSolucao;
     private javax.swing.JLabel terminalt;
+    private javax.swing.JTextArea textChat;
+    private javax.swing.JLabel tituloDetail;
     private javax.swing.JTextField ultimaAtualizacao;
     private javax.swing.JTextField urgenciaChamado;
     // End of variables declaration//GEN-END:variables

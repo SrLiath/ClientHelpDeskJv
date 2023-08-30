@@ -60,6 +60,7 @@ public class FormRead extends javax.swing.JPanel {
         btnMin = new javax.swing.JLabel();
         btnMax = new javax.swing.JLabel();
         btnX = new javax.swing.JLabel();
+        filtroPanel = new javax.swing.JComboBox<>();
 
         btnMin.setFont(new java.awt.Font("Roboto Black", 1, 24)); // NOI18N
 
@@ -86,17 +87,29 @@ public class FormRead extends javax.swing.JPanel {
             .addComponent(btnX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        filtroPanel.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Em atendimento (atribuído)", "Em atendimento (planejado)", "Pendente", "Solucionado", "Fechado" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(319, 319, 319)
+                    .addComponent(filtroPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(320, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 435, Short.MAX_VALUE))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup()
+                    .addGap(219, 219, 219)
+                    .addComponent(filtroPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(219, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -104,6 +117,7 @@ public class FormRead extends javax.swing.JPanel {
     private javax.swing.JLabel btnMax;
     private javax.swing.JLabel btnMin;
     private javax.swing.JLabel btnX;
+    private javax.swing.JComboBox<String> filtroPanel;
     private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 }

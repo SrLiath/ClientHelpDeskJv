@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import raven.controllers.Json;
 import raven.application.Application;
@@ -322,7 +324,12 @@ public void logos(){
         Json.insertJson(app, user);
         if(Json.getSession()){
                     // Chama a tela Swing de login
-                    Application main = new Application();
+                    Application main = null;
+            try {
+                main = new Application();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+            }
         
                     // Set the login view visible
                     main.setVisible(true);

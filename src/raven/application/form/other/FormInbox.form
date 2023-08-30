@@ -19,7 +19,7 @@
           <Component id="Bar" alignment="0" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
-              <Component id="leftPanel" min="-2" max="-2" attributes="0"/>
+              <Component id="leftPanel" max="32767" attributes="0"/>
               <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
               <Component id="rightPanel" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -54,7 +54,7 @@
                   <Component id="terminalt" min="-2" pref="17" max="-2" attributes="0"/>
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="612" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
                   <Component id="btnMin" min="-2" pref="25" max="-2" attributes="0"/>
                   <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
                   <Component id="btnMax" min="-2" pref="25" max="-2" attributes="0"/>
@@ -135,17 +135,17 @@
                       <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                       <Component id="jScrollPane1" min="-2" pref="405" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                          <Component id="tituloChamado" alignment="0" pref="263" max="32767" attributes="0"/>
-                          <Component id="solicitanteChamado" alignment="0" max="32767" attributes="0"/>
+                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="solicitanteChamado" alignment="0" pref="350" max="32767" attributes="0"/>
+                          <Component id="tituloChamado" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="20" max="32767" attributes="0"/>
+                  <EmptySpace pref="60" max="32767" attributes="0"/>
               </Group>
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="32767" attributes="0"/>
-                  <Component id="jToggleButton1" min="-2" pref="133" max="-2" attributes="0"/>
+                  <Component id="adicionarChamado" min="-2" pref="133" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="165" max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -168,7 +168,7 @@
                   <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
                   <Component id="jScrollPane1" min="-2" pref="155" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                  <Component id="jToggleButton1" min="-2" max="-2" attributes="0"/>
+                  <Component id="adicionarChamado" min="-2" max="-2" attributes="0"/>
                   <EmptySpace pref="23" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -208,12 +208,12 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JToggleButton" name="jToggleButton1">
+        <Component class="javax.swing.JToggleButton" name="adicionarChamado">
           <Properties>
             <Property name="text" type="java.lang.String" value="Adicionar"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jToggleButton1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="adicionarChamadoActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel8">
@@ -261,8 +261,8 @@
                               <Component id="adicionarAnexo" min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                                   <Component id="subCategoria" max="32767" attributes="0"/>
-                                  <Component id="categoria" max="32767" attributes="0"/>
-                                  <Component id="acao" alignment="1" max="32767" attributes="0"/>
+                                  <Component id="categoriaChamado" max="32767" attributes="0"/>
+                                  <Component id="acaoChamado" alignment="1" max="32767" attributes="0"/>
                                   <Component id="urgencia" min="-2" pref="200" max="-2" attributes="0"/>
                               </Group>
                               <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -279,7 +279,7 @@
                   <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="categoria" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="categoriaChamado" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -289,7 +289,7 @@
                   <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
                       <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="acao" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="acaoChamado" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -341,7 +341,7 @@
             <Property name="text" type="java.lang.String" value="Arquivo(s) (20MB m&#xe1;x)"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JComboBox" name="categoria">
+        <Component class="javax.swing.JComboBox" name="categoriaChamado">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
@@ -361,7 +361,7 @@
             <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JComboBox" name="acao">
+        <Component class="javax.swing.JComboBox" name="acaoChamado">
           <Properties>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>

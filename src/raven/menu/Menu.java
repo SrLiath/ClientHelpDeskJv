@@ -26,11 +26,15 @@ import javax.swing.JScrollPane;
  * @author Raven
  */
 public class Menu extends JPanel {
-
+    private static Menu instance;
+    public void setHeaderIcon(String iconPath, int newWidth, int newHeight) {
+        ImageIcon originalIcon = new ImageIcon(getClass().getResource(iconPath));
+        Icon resizedIcon = resizeIcon(originalIcon, newWidth, newHeight);
+        header.setIcon(resizedIcon);
+    }
     private final String menuItems[][] = {
-        {"~Lista~"},
         {"Chamados"},
-        {"Chamados"},
+        {"Abrir chamado"},
 
     };
 
@@ -57,7 +61,7 @@ public class Menu extends JPanel {
 
     private final List<MenuEvent> events = new ArrayList<>();
     private boolean menuFull = true;
-    private final String headerName = "Client Help Desk";
+    private final String headerName = "";
 
     protected final boolean hideMenuTitleOnMinimum = true;
     protected final int menuTitleLeftInset = 5;
@@ -67,7 +71,11 @@ public class Menu extends JPanel {
     protected final int headerFullHgap = 5;
 
     public Menu() {
+        instance = this;
         init();
+    }
+    public static Menu getInstance() {
+        return instance;
     }
     private static Icon resizeIcon(ImageIcon icon, int width, int height) {
         Image originalImage = icon.getImage();

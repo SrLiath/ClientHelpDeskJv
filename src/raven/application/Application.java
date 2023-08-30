@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -54,10 +55,10 @@ public class Application extends javax.swing.JFrame {
     private int mouseX, mouseY;
     private static Application app;
     private MainForm mainForm;
-    private static Dimension originalSize = new Dimension(900, 500);
+    private static Dimension originalSize = new Dimension(1000, 520);
      
-    public Application() {
-        ImageIcon icon = new ImageIcon(getClass().getResource("/raven/Interface/images/icon.png")); // Atualize o caminho conforme o local do ícone
+    public Application() throws InterruptedException {
+        ImageIcon icon = new ImageIcon(getClass().getResource("/raven/Interface/images/icone_sistema.png")); // Atualize o caminho conforme o local do ícone
         setIconImage(icon.getImage());
         if (!authenticate()){
         initComponents();
@@ -174,31 +175,44 @@ public class Application extends javax.swing.JFrame {
 
 
 
-  public boolean authenticate() {
+public boolean authenticate() throws InterruptedException {
     String jsonFilePath = "token.json";
 
     ObjectMapper objectMapper = new ObjectMapper();
     File jsonFile = new File(jsonFilePath);
 
-    try {
-        if (!jsonFile.exists()) {
-            // Cria um novo arquivo JSON com os valores iniciais
-            createInitialJson(jsonFile, objectMapper);
+    for (int attempt = 0; attempt < 3; attempt++) {
+        try {
+            if (!jsonFile.exists()) {
+                // Cria um novo arquivo JSON com os valores iniciais
+                createInitialJson(jsonFile, objectMapper);
+            }
+
+            // O arquivo JSON existe, então verifica os campos user_Token e app_Token
+            JsonNode jsonObject = objectMapper.readTree(jsonFile);
+
+            String userToken = jsonObject.get("user_Token").asText();
+            String appToken = jsonObject.get("app_Token").asText();
+            
+            // Verifica as condições de autenticação e retorna true se for autenticado
+            if (userToken.isEmpty() || appToken.isEmpty() || !Json.hasSessionToken() || !Json.checkSession() || !Json.getSession()) {
+                return true;
+            } else {
+                if (attempt < 2) {
+                    
+                    Thread.sleep(1000); // 1 segundo
+                } else {
+                    return false; // Terceira tentativa falhou, retorna false
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        // O arquivo JSON existe, então verifica os campos user_Token e app_Token
-        JsonNode jsonObject = objectMapper.readTree(jsonFile);
-
-        String userToken = jsonObject.get("user_Token").asText();
-        String appToken = jsonObject.get("app_Token").asText();
-        Json.getSession();
-        return userToken.isEmpty() || appToken.isEmpty() || !Json.hasSessionToken() || !Json.checkSession() || !Json.getSession();
-        
-    } catch (IOException e) {
-        e.printStackTrace();
-        return false;
     }
+    
+    return false; // Todas as tentativas falharam
 }
+
 
 private void createInitialJson(File jsonFile, ObjectMapper objectMapper) throws IOException {
     ObjectNode initialJson = objectMapper.createObjectNode();
@@ -283,17 +297,26 @@ public static void maximize() {
                FlatLaf.registerCustomDefaultsSource("raven.theme");
         FlatDarculaLaf.setup();
         java.awt.EventQueue.invokeLater(() -> {
-            app = new Application();
-            if (!app.authenticate()){
-                app.setVisible(true);
-                try {
-                    showForm(new FormDashboard());
-                } catch (IOException ex) {
-                    Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (URISyntaxException ex) {
-                    Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+                   try {
+                       app = new Application();
+                   } catch (InterruptedException ex) {
+                       Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+                   try {
+                       if (!app.authenticate()){
+                           app.setVisible(true);
+                           try {
+                               showForm(new FormDashboard());
+                           } catch (IOException ex) {
+                               Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+                           } catch (URISyntaxException ex) {
+                               Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+                           } catch (ParseException ex) {
+                               Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+                           }
+                       }      } catch (InterruptedException ex) {
+                       Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+                   }
             
 
         });

@@ -9,6 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,17 +19,33 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import raven.application.Application;
-
+import raven.controllers.Dicio;
+import raven.controllers.Json;
+import raven.controllers.Local;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 /**
  *
  * @author Raven
@@ -79,8 +98,8 @@ public class FormInbox extends javax.swing.JPanel {
             }
         });
     
-    leftPanel.putClientProperty(FlatClientProperties.STYLE,"background: $Panel.left.background;");
-    rightPanel.putClientProperty(FlatClientProperties.STYLE,"background: $Panel.right.background;");
+    leftPanel.putClientProperty(FlatClientProperties.STYLE,"background: $menu.hbbar;");
+    rightPanel.putClientProperty(FlatClientProperties.STYLE,"background: $menu.hbbar;");
     Bar.putClientProperty(FlatClientProperties.STYLE,"background: $Bar.background;");
             try {
     JSONTokener tokener = new JSONTokener(new FileReader("config.json"));
@@ -107,14 +126,14 @@ public class FormInbox extends javax.swing.JPanel {
     }
 
     if (!categoriaSet.isEmpty()) {
-        categoria.addItem("---");
-        categoriaSet.forEach(categoria::addItem);
+        categoriaChamado.addItem("---");
+        categoriaSet.forEach(categoriaChamado::addItem);
     }
 
-categoria.addActionListener(new ActionListener() {
+categoriaChamado.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
-        String selectedCategoria = (String) categoria.getSelectedItem();
+        String selectedCategoria = (String) categoriaChamado.getSelectedItem();
 
         subCategoria.removeAllItems();
         subCategoria.addItem("---");
@@ -131,15 +150,15 @@ subCategoria.addActionListener(new ActionListener() {
     public void actionPerformed(ActionEvent e) {
         String selectedSubCategoria = (String) subCategoria.getSelectedItem();
 
-        acao.removeAllItems();
-        acao.addItem("---");
+        acaoChamado.removeAllItems();
+        acaoChamado.addItem("---");
 
-        String selectedCategoria = (String) categoria.getSelectedItem();
+        String selectedCategoria = (String) categoriaChamado.getSelectedItem();
         String categoryAndSubCategory = selectedCategoria + " > " + selectedSubCategoria;
 
         if (selectedSubCategoria != null && !selectedSubCategoria.equals("---")) {
             Set<String> acaoItems = acaoMap.getOrDefault(categoryAndSubCategory, Collections.emptySet());
-            acaoItems.forEach(acao::addItem);
+            acaoItems.forEach(acaoChamado::addItem);
         }
     }
 });
@@ -198,6 +217,87 @@ subCategoria.addActionListener(new ActionListener() {
         fileListPanel.revalidate();
         fileListPanel.repaint();
     }
+
+private boolean isInputValid() {
+    boolean isValid = true;
+    
+    if (tituloChamado.getText().trim().isEmpty()) {
+        isValid = false;
+        highlightField(tituloChamado);
+    } else {
+        removeHighlight(tituloChamado);
+    }
+    
+    if (solicitanteChamado.getText().trim().isEmpty()) {
+        isValid = false;
+        highlightField(solicitanteChamado);
+    } else {
+        removeHighlight(solicitanteChamado);
+    }
+    
+    if (categoriaChamado.getSelectedItem() == null || categoriaChamado.getSelectedItem().equals("---")) {
+        isValid = false;
+        highlightField(categoriaChamado);
+    } else {
+        removeHighlight(categoriaChamado);
+    }
+    
+    if (descricaoChamado.getText().trim().isEmpty()) {
+        isValid = false;
+        highlightField(descricaoChamado);
+    } else {
+        removeHighlight(descricaoChamado);
+    }
+    
+    return isValid;
+}
+
+private JSONObject createJsonObject() throws IOException, URISyntaxException {
+    JSONObject jsonObject = new JSONObject();
+    jsonObject.put("requester_full_name", tituloChamado.getText().trim());
+    jsonObject.put("name", solicitanteChamado.getText().trim() + "/" + Local.getMachineName());
+    jsonObject.put("itilcategories_id", Dicio.makeCategoryReverse(categoriaChamado.getSelectedItem().toString(), subCategoria.getSelectedItem().toString(), acaoChamado.getSelectedItem().toString()));          // Include acao
+    jsonObject.put("urgency", Dicio.urgenciaReverse(urgencia.getSelectedItem().toString()));        // Include urgencia
+    jsonObject.put("content", descricaoChamado.getText().trim());
+    jsonObject.put("_users_id_requester", Json.getOwnId());
+    jsonObject.put("priority", "3");
+    jsonObject.put("impact", "3");
+    jsonObject.put("status", "1");
+    jsonObject.put("type", "1");
+    JSONObject complete = new JSONObject();
+    complete.put("input", jsonObject);
+    return complete;
+}
+
+private void highlightField(javax.swing.JTextField field) {
+    field.setBackground(Color.RED);
+    field.setToolTipText("Este campo é obrigatório");
+}
+
+private void removeHighlight(javax.swing.JTextField field) {
+    field.setBackground(UIManager.getColor("TextField.background"));
+    field.setToolTipText(null);
+}
+
+private void highlightField(javax.swing.JComboBox<?> comboBox) {
+    comboBox.setBackground(Color.RED);
+    comboBox.setToolTipText("Este campo é obrigatório");
+}
+
+private void removeHighlight(javax.swing.JComboBox<?> comboBox) {
+    comboBox.setBackground(UIManager.getColor("ComboBox.background"));
+    comboBox.setToolTipText(null);
+}
+
+private void highlightField(javax.swing.JTextArea textArea) {
+    textArea.setBackground(Color.RED);
+    textArea.setToolTipText("Este campo é obrigatório");
+}
+
+private void removeHighlight(javax.swing.JTextArea textArea) {
+    textArea.setBackground(UIManager.getColor("TextArea.background"));
+    textArea.setToolTipText(null);
+}
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -214,7 +314,7 @@ subCategoria.addActionListener(new ActionListener() {
         solicitanteChamado = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         descricaoChamado = new javax.swing.JTextArea();
-        jToggleButton1 = new javax.swing.JToggleButton();
+        adicionarChamado = new javax.swing.JToggleButton();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
@@ -225,9 +325,9 @@ subCategoria.addActionListener(new ActionListener() {
         jLabel6 = new javax.swing.JLabel();
         adicionarAnexo = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
-        categoria = new javax.swing.JComboBox<>();
+        categoriaChamado = new javax.swing.JComboBox<>();
         subCategoria = new javax.swing.JComboBox<>();
-        acao = new javax.swing.JComboBox<>();
+        acaoChamado = new javax.swing.JComboBox<>();
         urgencia = new javax.swing.JComboBox<>();
         filesSelected = new javax.swing.JScrollPane();
 
@@ -255,7 +355,7 @@ subCategoria.addActionListener(new ActionListener() {
                 .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 612, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(btnMax, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -294,10 +394,10 @@ subCategoria.addActionListener(new ActionListener() {
         descricaoChamado.setRows(5);
         jScrollPane1.setViewportView(descricaoChamado);
 
-        jToggleButton1.setText("Adicionar");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+        adicionarChamado.setText("Adicionar");
+        adicionarChamado.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
+                adicionarChamadoActionPerformed(evt);
             }
         });
 
@@ -318,14 +418,14 @@ subCategoria.addActionListener(new ActionListener() {
                     .addComponent(jLabel9)
                     .addComponent(jLabel8)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel1)
-                        .addComponent(tituloChamado, javax.swing.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
-                        .addComponent(solicitanteChamado)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                    .addComponent(jLabel1)
+                    .addGroup(leftPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(solicitanteChamado, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+                        .addComponent(tituloChamado, javax.swing.GroupLayout.Alignment.LEADING)))
+                .addContainerGap(60, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, leftPanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(adicionarChamado, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(165, 165, 165))
         );
         leftPanelLayout.setVerticalGroup(
@@ -346,7 +446,7 @@ subCategoria.addActionListener(new ActionListener() {
                 .addGap(4, 4, 4)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jToggleButton1)
+                .addComponent(adicionarChamado)
                 .addContainerGap(23, Short.MAX_VALUE))
         );
 
@@ -392,8 +492,8 @@ subCategoria.addActionListener(new ActionListener() {
                             .addComponent(adicionarAnexo)
                             .addGroup(rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(subCategoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(categoria, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(acao, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(categoriaChamado, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(acaoChamado, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(urgencia, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel7))
                         .addGap(26, 26, 26))))
@@ -404,7 +504,7 @@ subCategoria.addActionListener(new ActionListener() {
                 .addGap(31, 31, 31)
                 .addGroup(rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(categoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(categoriaChamado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(34, 34, 34)
                 .addGroup(rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -412,7 +512,7 @@ subCategoria.addActionListener(new ActionListener() {
                 .addGap(31, 31, 31)
                 .addGroup(rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(acao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(acaoChamado, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22)
                 .addGroup(rightPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
@@ -433,7 +533,7 @@ subCategoria.addActionListener(new ActionListener() {
             .addComponent(Bar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGap(1, 1, 1)
-                .addComponent(leftPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(leftPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(rightPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -461,9 +561,43 @@ subCategoria.addActionListener(new ActionListener() {
         // TODO add your handling code here:
     }//GEN-LAST:event_btnXMouseClicked
 
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    private void adicionarChamadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adicionarChamadoActionPerformed
+                if (isInputValid()) {
+        JSONObject jsonObject = null;
+                    try {
+                        jsonObject = createJsonObject();
+                    } catch (IOException ex) {
+                        Logger.getLogger(FormInbox.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (URISyntaxException ex) {
+                        Logger.getLogger(FormInbox.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    String response = Json.sendTicket(Json.getUrl() + "Ticket/", jsonObject.toString());
+             if (response != null) {
+                 if (!selectedFiles.isEmpty()){
+                JSONObject tecnicoDetalhesJSON = new JSONObject(response);
+                String id = tecnicoDetalhesJSON.optString("id", "");
+                 }
+                
+                // Chamado aberto com sucesso
+                JOptionPane.showMessageDialog(this, "Chamado aberto com sucesso", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                        try {
+                            Application.showForm(new FormDashboard());
+                        } catch (IOException ex) {
+                            Logger.getLogger(FormInbox.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (URISyntaxException ex) {
+                            Logger.getLogger(FormInbox.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (ParseException ex) {
+                Logger.getLogger(FormInbox.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            } else {
+                // Erro interno, contate um administrador
+                JOptionPane.showMessageDialog(this, "Tente novamente mais tarde ou contate um administrador, erro interno", "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+
+   
+        System.out.println(jsonObject.toString());
+    }
+    }//GEN-LAST:event_adicionarChamadoActionPerformed
 
     private void tituloChamadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tituloChamadoActionPerformed
         // TODO add your handling code here:
@@ -479,12 +613,13 @@ subCategoria.addActionListener(new ActionListener() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Bar;
-    private javax.swing.JComboBox<String> acao;
+    private javax.swing.JComboBox<String> acaoChamado;
     private javax.swing.JButton adicionarAnexo;
+    private javax.swing.JToggleButton adicionarChamado;
     private javax.swing.JLabel btnMax;
     private javax.swing.JLabel btnMin;
     private javax.swing.JLabel btnX;
-    private javax.swing.JComboBox<String> categoria;
+    private javax.swing.JComboBox<String> categoriaChamado;
     private javax.swing.JTextArea descricaoChamado;
     private javax.swing.JScrollPane filesSelected;
     private javax.swing.JLabel jLabel1;
@@ -498,7 +633,6 @@ subCategoria.addActionListener(new ActionListener() {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JPanel rightPanel;
     private javax.swing.JTextField solicitanteChamado;
@@ -507,4 +641,66 @@ subCategoria.addActionListener(new ActionListener() {
     private javax.swing.JTextField tituloChamado;
     private javax.swing.JComboBox<String> urgencia;
     // End of variables declaration//GEN-END:variables
+public void sendFileAndAssociateWithTicket(String sessionToken, String appToken, String ticketId, List<File> files) {
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        HttpPost postRequest = new HttpPost(Json.getUrl() + "Document/");
+        
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+        JSONObject uploadManifest = new JSONObject();
+        uploadManifest.put("input", new JSONObject()
+                .put("name", "Uploaded document")
+                .put("_filename", files.stream().map(File::getName).toArray()));
+        entityBuilder.addTextBody("uploadManifest", uploadManifest.toString(), ContentType.APPLICATION_JSON);
+        
+        for (File file : files) {
+            entityBuilder.addBinaryBody("filename[]", file, ContentType.DEFAULT_BINARY, file.getName());
+        }
+        
+        HttpEntity multipartEntity = entityBuilder.build();
+        postRequest.setEntity(multipartEntity);
+        
+        postRequest.setHeader("Authorization", "user_token " + Json.getU());
+        postRequest.setHeader("App-Token", Json.getA());
+        postRequest.setHeader("Session-Token", Json.getS());
+        postRequest.setHeader("Connection", "keep-alive");
+        
+        HttpResponse response = httpClient.execute(postRequest);
+        HttpEntity responseEntity = response.getEntity();
+        if (responseEntity != null) {
+            String responseString = EntityUtils.toString(responseEntity);
+            JSONObject jsonResponse = new JSONObject(responseString);
+            String documentId = jsonResponse.optString("id", "");
+            
+            // Associate the uploaded document with the ticket
+            associateDocumentWithTicket(sessionToken, appToken, documentId, ticketId);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+public void associateDocumentWithTicket(String sessionToken, String appToken, String documentId, String ticketId) {
+    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+        HttpPost postRequest = new HttpPost(Json.getUrl() + "Document/" + documentId + "/Document_Item/");
+        
+        JSONObject payload = new JSONObject()
+                .put("input", new JSONObject()
+                        .put("documents_id", documentId)
+                        .put("items_id", ticketId)
+                        .put("itemtype", "Ticket")
+                        .put("users_id", "7"));
+        
+        postRequest.setHeader("Authorization", "user_token " + Json.getU());
+        postRequest.setHeader("App-Token", Json.getA());
+        postRequest.setHeader("Session-Token", Json.getS());
+        postRequest.setHeader("Connection", "keep-alive");
+        postRequest.setHeader("Content-Type", "application/json");
+        postRequest.setEntity(new StringEntity(payload.toString(), ContentType.APPLICATION_JSON));
+        
+        HttpResponse response = httpClient.execute(postRequest);
+        // Handle the response as needed
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }

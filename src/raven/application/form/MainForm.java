@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -85,6 +86,8 @@ public class MainForm extends JLayeredPane {
                     Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (URISyntaxException ex) {
                     Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ParseException ex) {
+                    Logger.getLogger(MainForm.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else if (index == 1) {
                     Application.showForm(new FormInbox());
@@ -98,11 +101,25 @@ public class MainForm extends JLayeredPane {
 
     private void setMenuFull(boolean full) {
         String icon;
+        String iconPath;
+        int width;
+        int height;
+
+
         if (getComponentOrientation().isLeftToRight()) {
             icon = (full) ? "menu_left.svg" : "menu_right.svg";
+            iconPath = (full) ? "/raven/interface/images/Logo_Techsize.png" : "/raven/interface/images/icone_sistema.png";
+            width = (full) ? 150 : 45;
+            height = (full) ? 53 : 45;
+
         } else {
             icon = (full) ? "menu_right.svg" : "menu_left.svg";
+            iconPath = (full) ? "/raven/interface/images/icone_sistema.png" : "/raven/interface/images/Logo_Techsize.png";
+            width = (full) ? 45 : 150;
+            height = (full) ? 45 : 53;
         }
+        Menu menuInstance = Menu.getInstance();
+        menuInstance.setHeaderIcon(iconPath, width, height);
         menuButton.setIcon(new FlatSVGIcon("raven/icon/svg/" + icon, 0.8f));
         menu.setMenuFull(full);
         revalidate();

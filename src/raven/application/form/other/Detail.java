@@ -46,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 
@@ -136,7 +138,8 @@ if (tecnico != null && !tecnico.isEmpty()) {
         formattedOutput.append("Última data: ").append(ultimaData).append("\n").append("-------------\n").append(formattedContent);
 
         // Definir o texto formatado em respChat.setText()
-        String formattedText = formattedOutput.toString();
+        String formattedText = removeHtmlTags(formattedOutput.toString());
+   
         respChat.setText(formattedText);
     } else {
         // Se a lista estiver vazia, não há detalhes disponíveis
@@ -449,6 +452,8 @@ if (tecnico != null && !tecnico.isEmpty()) {
         textChat.setRows(5);
         jScrollPane1.setViewportView(textChat);
         textChat.setEditable(false);
+        Color corFundox = new Color(255,255,255); // Vermelho
+        Bar.setBackground(corFundox);
 
         respChat.setColumns(20);
         respChat.setRows(5);
@@ -553,7 +558,16 @@ if (tecnico != null && !tecnico.isEmpty()) {
             Logger.getLogger(Detail.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jLabel3MouseClicked
-
+    public static String removeHtmlTags(String htmlText) {
+        // Expressão regular para localizar tags HTML
+        String regex = "<[^>]+>";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(htmlText);
+        
+        // Substituir as tags HTML por uma string vazia
+        String formattedText = matcher.replaceAll("");
+        return formattedText;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Bar;
     private javax.swing.JLabel btnMax;

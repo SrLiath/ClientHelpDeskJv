@@ -28,7 +28,7 @@ import javax.swing.JScrollPane;
 public class Menu extends JPanel {
     private static Menu instance;
     public void setHeaderIcon(String iconPath, int newWidth, int newHeight) {
-        ImageIcon originalIcon = new ImageIcon(getClass().getResource(iconPath));
+        ImageIcon originalIcon = new ImageIcon(iconPath);
         Icon resizedIcon = resizeIcon(originalIcon, newWidth, newHeight);
         header.setIcon(resizedIcon);
     }
@@ -99,7 +99,7 @@ public class Menu extends JPanel {
                 + "border:20,2,2,2;"
                 + "background:$Menu.background;");
         header = new JLabel(headerName);
-        ImageIcon originalIcon = new ImageIcon(getClass().getResource("/raven/interface/images/icone_sistema.png"));
+        ImageIcon originalIcon = new ImageIcon("interface/images/icone_sistema.png");
          int newWidth = 45; // Nova largura desejada
             int newHeight = 45; // Nova altura desejada
             Icon resizedIcon = resizeIcon(originalIcon, newWidth, newHeight);

@@ -8,8 +8,10 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -102,7 +104,7 @@ public class FormInbox extends javax.swing.JPanel {
     rightPanel.putClientProperty(FlatClientProperties.STYLE,"background: $menu.hbbar;");
     Bar.putClientProperty(FlatClientProperties.STYLE,"background: $Bar.background;");
             try {
-    JSONTokener tokener = new JSONTokener(new FileReader("config.json"));
+    JSONTokener tokener = new JSONTokener(new InputStreamReader(new FileInputStream("config.json"), "UTF-8"));
     JSONArray jsonArray = new JSONArray(tokener);
 
     Set<String> categoriaSet = new HashSet<>();

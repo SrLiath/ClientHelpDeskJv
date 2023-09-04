@@ -174,7 +174,9 @@ Bar.putClientProperty(FlatClientProperties.STYLE,"background: $Bar.background;")
 jButton2.addActionListener(new java.awt.event.ActionListener() {
     public void actionPerformed(java.awt.event.ActionEvent evt) {
         try {
-            updateTableData("1");
+            String selectedFilter = (String) filtroPanel.getSelectedItem();
+            System.out.println(selectedFilter);
+            updateTableData(selectedFilter); 
         } catch (IOException ex) {
             Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
         } catch (URISyntaxException ex) {

@@ -108,17 +108,18 @@ public class MainForm extends JLayeredPane {
 
         if (getComponentOrientation().isLeftToRight()) {
             icon = (full) ? "menu_left.svg" : "menu_right.svg";
-            iconPath = (full) ? "/raven/interface/images/Logo_Techsize.png" : "/raven/interface/images/icone_sistema.png";
+            iconPath = (full) ? "interface/images/Logo_Techsize.png" : "interface/images/icone_sistema.png";
             width = (full) ? 150 : 45;
             height = (full) ? 53 : 45;
 
         } else {
             icon = (full) ? "menu_right.svg" : "menu_left.svg";
-            iconPath = (full) ? "/raven/interface/images/icone_sistema.png" : "/raven/interface/images/Logo_Techsize.png";
+            iconPath = (full) ? "interface/images/icone_sistema.png" : "interface/images/Logo_Techsize.png";
             width = (full) ? 45 : 150;
             height = (full) ? 45 : 53;
         }
         Menu menuInstance = Menu.getInstance();
+        System.out.println(iconPath);
         menuInstance.setHeaderIcon(iconPath, width, height);
         menuButton.setIcon(new FlatSVGIcon("raven/icon/svg/" + icon, 0.8f));
         menu.setMenuFull(full);

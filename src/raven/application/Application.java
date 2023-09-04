@@ -30,6 +30,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.logging.Level;
@@ -58,13 +62,14 @@ public class Application extends javax.swing.JFrame {
     private static Dimension originalSize = new Dimension(1000, 520);
      
     public Application() throws InterruptedException {
-        ImageIcon icon = new ImageIcon(getClass().getResource("/raven/Interface/images/icone_sistema.png")); // Atualize o caminho conforme o local do ícone
+       ImageIcon icon = new ImageIcon("Interface/images/icone_sistema.png"); // Atualize o caminho conforme o local do ícone
         setIconImage(icon.getImage());
         if (!authenticate()){
+        startServerThread();
         initComponents();
         setSize(new Dimension(1000, 520));
         setLocationRelativeTo(null);
-        
+        setTitle("Client Help Desk");
         mainForm = new MainForm();
         FlatAnimatedLafChange.showSnapshot();
         setContentPane(mainForm);
@@ -102,7 +107,36 @@ public class Application extends javax.swing.JFrame {
         }else{openLoginScreen();}
 
     }
-    
+    public static void startServerThread() {
+        Thread serverThread = new Thread(() -> {
+            try {
+                ServerSocket serverSocket = new ServerSocket(25786);
+                System.out.println("Servidor aberto na porta 34786");
+                
+                while (true) {
+                    Socket clientSocket = serverSocket.accept();
+                    System.out.println("Recebida uma solicitação de cliente");
+                    
+                    // Enviar a resposta "aberto" para o cliente
+                    OutputStream outputStream = clientSocket.getOutputStream();
+                    PrintWriter writer = new PrintWriter(outputStream, true);
+                    writer.println("aberto");
+                    
+                    // Executar a função teste()
+                    app.setState(JFrame.NORMAL);
+                    app.setVisible(true);
+                    
+                    // Fechar conexão com o cliente
+                    writer.close();
+                    clientSocket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        
+        serverThread.start();
+    }
  public void tray() {
         if (SystemTray.isSupported()) {
             try {
@@ -195,14 +229,14 @@ public boolean authenticate() throws InterruptedException {
             String appToken = jsonObject.get("app_Token").asText();
             
             // Verifica as condições de autenticação e retorna true se for autenticado
-            if (userToken.isEmpty() || appToken.isEmpty() || !Json.hasSessionToken() || !Json.checkSession() || !Json.getSession()) {
-                return true;
+            if ( Json.getSession()) {
+                return false;
             } else {
                 if (attempt < 2) {
                     
                     Thread.sleep(1000); // 1 segundo
                 } else {
-                    return false; // Terceira tentativa falhou, retorna false
+                    return true; // Terceira tentativa falhou, retorna false
                 }
             }
         } catch (IOException e) {

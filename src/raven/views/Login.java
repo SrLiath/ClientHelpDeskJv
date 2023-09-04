@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Image;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -323,17 +324,13 @@ public void logos(){
         String user = userToken.getText();
         Json.insertJson(app, user);
         if(Json.getSession()){
-                    // Chama a tela Swing de login
-                    Application main = null;
             try {
-                main = new Application();
-            } catch (InterruptedException ex) {
+                // Chama a tela Swing de login
+                Process process = Runtime.getRuntime().exec("java\\bin\\java.exe -jar GLPI.jar");
+            } catch (IOException ex) {
                 Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
             }
-        
-                    // Set the login view visible
-                    main.setVisible(true);
-                    dispose();
+                    System.exit(0);
         }
         
     }//GEN-LAST:event_loginBtnTxtMouseClicked

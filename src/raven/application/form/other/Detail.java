@@ -48,13 +48,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 
 
 
-/**
- *
- * @author Raven
- */
 public class Detail extends javax.swing.JPanel {
     private Color originalColor;
     public Detail(String id) throws IOException, URISyntaxException, ParseException {
@@ -122,25 +120,25 @@ if (tecnico != null && !tecnico.isEmpty()) {
         String ultimaData = ultimoItem.getString("date");
 
         // Construir o conteúdo formatado
-        StringBuilder formattedContent = new StringBuilder();
         for (JSONObject item : tecnicoDetalhesList) {
             String content = item.getString("content");
             
             // Decodificar caracteres HTML usando Jsoup
             Document doc = Jsoup.parse(content);
             String decodedContent = doc.text();
-            
-            formattedContent.append(decodedContent).append("\n\n");
+            javax.swing.JTextArea   chatMsm = new javax.swing.JTextArea();
+            chatMsm.setColumns(20);
+            chatMsm.setRows(5);
+            jScrollPane2.setViewportView(chatMsm);
+            chatMsm.setEditable(false);
+            javax.swing.border.Border customBorder = BorderFactory.createLineBorder(new java.awt.Color(88, 99, 108));
+            chatMsm.setBorder(customBorder);
+            String formattedText = removeHtmlTags(decodedContent);
+
+
+            chatMsm.setText(formattedText);
+            chatTicket.add(chatMsm);
         }
-
-        // Construir a saída formatada
-        StringBuilder formattedOutput = new StringBuilder();
-        formattedOutput.append("Última data: ").append(ultimaData).append("\n").append("-------------\n").append(formattedContent);
-
-        // Definir o texto formatado em respChat.setText()
-        String formattedText = removeHtmlTags(formattedOutput.toString());
-   
-        respChat.setText(formattedText);
     } else {
         // Se a lista estiver vazia, não há detalhes disponíveis
         respChat.setText("Sem detalhes disponíveis.");
@@ -181,7 +179,7 @@ if (tecnico != null && !tecnico.isEmpty()) {
 
         int newWidth = 20;
         int newHeight = 20;
-              ImageIcon terminal = new ImageIcon("src/raven/Interface/images/icons/images/cil-terminal.png");
+        ImageIcon terminal = new ImageIcon("src/raven/Interface/images/icons/images/cil-terminal.png");
         Image imgt = terminal.getImage();
         Image imgScalet = imgt.getScaledInstance(14, 14, Image.SCALE_SMOOTH);
         ImageIcon scaledIcont = new ImageIcon(imgScalet);
@@ -261,6 +259,7 @@ if (tecnico != null && !tecnico.isEmpty()) {
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        painelChat = new javax.swing.JScrollPane();
         chatTicket = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         textChat = new javax.swing.JTextArea();
@@ -294,7 +293,7 @@ if (tecnico != null && !tecnico.isEmpty()) {
                 .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 596, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(btnMax, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -476,7 +475,7 @@ if (tecnico != null && !tecnico.isEmpty()) {
                         .addGap(6, 6, 6)
                         .addGroup(chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(tecnicoDetail)
-                            .addComponent(jScrollPane2))
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE))
                         .addGap(25, 25, 25))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, chatTicketLayout.createSequentialGroup()
                         .addGap(31, 31, 31)
@@ -504,23 +503,24 @@ if (tecnico != null && !tecnico.isEmpty()) {
                 .addComponent(tecnicoDetail)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(158, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        painelChat.setViewportView(chatTicket);
 
         javax.swing.GroupLayout detailLayout = new javax.swing.GroupLayout(detail);
         detail.setLayout(detailLayout);
         detailLayout.setHorizontalGroup(
             detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailLayout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addComponent(chatTicket, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(0, 0, 0)
+                .addComponent(painelChat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(detailTicket, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         detailLayout.setVerticalGroup(
             detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(detailTicket, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(chatTicket, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(painelChat)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -592,6 +592,7 @@ if (tecnico != null && !tecnico.isEmpty()) {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane painelChat;
     private javax.swing.JTextArea respChat;
     private javax.swing.JTextField statusChamado;
     private javax.swing.JLabel tecnicoDetail;

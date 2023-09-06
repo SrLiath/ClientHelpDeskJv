@@ -400,4 +400,15 @@ public static Integer getOwnId() throws IOException, URISyntaxException{
     return id;
 }
 
+public static String getOwnName() throws IOException, URISyntaxException{
+    String detalhes = Json.makeGetRequest(getUrl() + "getFullSession/", getS(), getA(), getU());
+    JSONObject detalhesJSON = new JSONObject(detalhes);
+    System.out.println("OwnName:");
+    System.out.println(detalhesJSON);
+    JSONObject sessionJSON = detalhesJSON.getJSONObject("session"); 
+    String idString = sessionJSON.optString("glpifriendlyname", ""); 
+
+
+    return idString;
+}
 }

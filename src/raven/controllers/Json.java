@@ -30,7 +30,15 @@ import org.apache.http.client.methods.HttpGet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 public class Json {
     public static boolean checkSession() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -411,4 +419,44 @@ public static String getOwnName() throws IOException, URISyntaxException{
 
     return idString;
 }
+
+
+public static void uploadFile(String sessionToken, String appToken, String apiUrl, String uploadManifest, String filePath) {
+        try {
+            // Crie um cliente HTTP
+            HttpClient httpClient = HttpClients.createDefault();
+
+            // Construa a URL completa
+            String fullUrl = apiUrl + "Document/";
+
+            // Crie uma solicitação POST
+            HttpPost httpPost = new HttpPost(fullUrl);
+
+            // Adicione cabeçalhos personalizados
+            httpPost.setHeader("Session-Token", sessionToken);
+            httpPost.setHeader("App-Token", appToken);
+
+            // Crie uma entidade multipart para o upload de arquivo
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addTextBody("uploadManifest", uploadManifest, ContentType.APPLICATION_JSON);
+            builder.addBinaryBody("filename[0]", new File(filePath), ContentType.DEFAULT_BINARY, "file.txt");
+
+            // Defina a entidade do corpo da solicitação
+            HttpEntity multipart = builder.build();
+            httpPost.setEntity(multipart);
+
+            // Execute a solicitação
+            HttpResponse response = httpClient.execute(httpPost);
+
+            // Obtenha a resposta do servidor
+            HttpEntity responseEntity = response.getEntity();
+            String responseString = EntityUtils.toString(responseEntity);
+
+            // Lide com a resposta, por exemplo, imprima-a
+            System.out.println("Resposta do servidor: " + responseString);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }    
 }

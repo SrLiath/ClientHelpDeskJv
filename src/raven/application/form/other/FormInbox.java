@@ -578,6 +578,23 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
                  if (!selectedFiles.isEmpty()){
                 JSONObject tecnicoDetalhesJSON = new JSONObject(response);
                 String id = tecnicoDetalhesJSON.optString("id", "");
+                for (File path : selectedFiles) {
+    try {
+        String filePath = path.getPath();
+        String name = path.getName();
+         String fileNameWithoutExtension = name.replaceFirst("[.][^.]+$", ""); 
+        String uploadManifest = "{\"input\": {\"name\": \"Documento: Chamado - "+ solicitanteChamado.getText().trim() + "/" + Local.getMachineName() +"\",\"items_id\": \""+ id +"\", \"itemtype\":\"Ticket\", \"_filename\": [\""+ name +"\"]}}";
+
+        Json.uploadFile(Json.getS(), Json.getA(), Json.getUrl(), uploadManifest, filePath);
+        System.out.println(response);
+        
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+
                  }
                 
                 // Chamado aberto com sucesso
@@ -643,66 +660,6 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
     private javax.swing.JTextField tituloChamado;
     private javax.swing.JComboBox<String> urgencia;
     // End of variables declaration//GEN-END:variables
-public void sendFileAndAssociateWithTicket(String sessionToken, String appToken, String ticketId, List<File> files) {
-    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-        HttpPost postRequest = new HttpPost(Json.getUrl() + "Document/");
-        
-        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-        JSONObject uploadManifest = new JSONObject();
-        uploadManifest.put("input", new JSONObject()
-                .put("name", "Uploaded document")
-                .put("_filename", files.stream().map(File::getName).toArray()));
-        entityBuilder.addTextBody("uploadManifest", uploadManifest.toString(), ContentType.APPLICATION_JSON);
-        
-        for (File file : files) {
-            entityBuilder.addBinaryBody("filename[]", file, ContentType.DEFAULT_BINARY, file.getName());
-        }
-        
-        HttpEntity multipartEntity = entityBuilder.build();
-        postRequest.setEntity(multipartEntity);
-        
-        postRequest.setHeader("Authorization", "user_token " + Json.getU());
-        postRequest.setHeader("App-Token", Json.getA());
-        postRequest.setHeader("Session-Token", Json.getS());
-        postRequest.setHeader("Connection", "keep-alive");
-        
-        HttpResponse response = httpClient.execute(postRequest);
-        HttpEntity responseEntity = response.getEntity();
-        if (responseEntity != null) {
-            String responseString = EntityUtils.toString(responseEntity);
-            JSONObject jsonResponse = new JSONObject(responseString);
-            String documentId = jsonResponse.optString("id", "");
-            
-            // Associate the uploaded document with the ticket
-            associateDocumentWithTicket(sessionToken, appToken, documentId, ticketId);
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
 
-public void associateDocumentWithTicket(String sessionToken, String appToken, String documentId, String ticketId) {
-    try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-        HttpPost postRequest = new HttpPost(Json.getUrl() + "Document/" + documentId + "/Document_Item/");
-        
-        JSONObject payload = new JSONObject()
-                .put("input", new JSONObject()
-                        .put("documents_id", documentId)
-                        .put("items_id", ticketId)
-                        .put("itemtype", "Ticket")
-                        .put("users_id", "7"));
-        
-        postRequest.setHeader("Authorization", "user_token " + Json.getU());
-        postRequest.setHeader("App-Token", Json.getA());
-        postRequest.setHeader("Session-Token", Json.getS());
-        postRequest.setHeader("Connection", "keep-alive");
-        postRequest.setHeader("Content-Type", "application/json");
-        postRequest.setEntity(new StringEntity(payload.toString(), ContentType.APPLICATION_JSON));
-        
-        HttpResponse response = httpClient.execute(postRequest);
-        // Handle the response as needed
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
+
 }

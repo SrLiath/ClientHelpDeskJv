@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
+import javax.swing.border.MatteBorder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import raven.application.Application;
@@ -44,6 +45,7 @@ import raven.controllers.Local;
  */
 public class FormDashboard extends javax.swing.JPanel {
     private JPanel panelBody;
+    private MatteBorder border;
     public FormDashboard() throws IOException, URISyntaxException, ParseException {
         initComponents();
 
@@ -390,8 +392,13 @@ filtroPanel.addActionListener(new ActionListener() {
                 if (hasContent) {
                     component.setBackground(new Color(0xC3D7EF));
                     // Set the left border for the first column
+
                     if (column == 0 && component instanceof JComponent) {
-                        Border border = BorderFactory.createMatteBorder(0, 3, 0, 0, new Color(0x00E300));
+                        if (table.getValueAt(row, 2).toString().equals("6")) {
+                            border = BorderFactory.createMatteBorder(0, 3, 0, 0, Color.RED); // Red border for "Fechada" rows
+                        } else {
+                            border = BorderFactory.createMatteBorder(0, 3, 0, 0, new Color(0x00E300)); // Default green border
+                        }
                         ((JComponent) component).setBorder(border);
                     }
                 } else {
@@ -470,12 +477,8 @@ filtroPanel.addActionListener(new ActionListener() {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(Bar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, 0)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(filtroBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 0, 0))
+            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(filtroBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

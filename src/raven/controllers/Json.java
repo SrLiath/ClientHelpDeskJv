@@ -12,7 +12,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-
+import java.io.DataOutputStream;
 
 import java.io.File;
 import java.io.FileReader;
@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.HttpEntity;
@@ -396,6 +397,45 @@ public static String getTecnico(String id, String own) throws IOException, URISy
     return "não atribuído";
 }
 
+public static String generateConfig(String baseUrl, String sessionToken, String appToken, String userToken) throws IOException, URISyntaxException {
+    try {
+        HttpClient httpClient = HttpClients.createDefault();
+        
+        // Construct the URL with parameters
+        URIBuilder uriBuilder = new URIBuilder(baseUrl);
+        uriBuilder.addParameter("session_token", sessionToken);
+        uriBuilder.addParameter("app_token", appToken);
+        uriBuilder.addParameter("user_token", userToken);
+        uriBuilder.addParameter("range", "0-9000");
+        
+        HttpGet httpGet = new HttpGet(uriBuilder.build());
+
+        httpGet.setHeader("Accept", "*/*");
+        httpGet.setHeader("Accept-Encoding", "gzip, deflate, br");
+        httpGet.setHeader("Connection", "keep-alive");
+
+        HttpResponse response = httpClient.execute(httpGet);
+
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == 200) {
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                String resultado = EntityUtils.toString(entity, Charset.forName("UTF-8"));
+                Local.makeConfig(resultado);
+                return resultado;
+            } else {
+                System.out.println("Response entity is null.");
+                return null;
+            }
+        } else {
+            System.out.println("Request failed with status code: " + statusCode);
+            return null;
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
 public static Integer getOwnId() throws IOException, URISyntaxException{
     String detalhes = Json.makeGetRequest(getUrl() + "getFullSession/", getS(), getA(), getU());
     JSONObject detalhesJSON = new JSONObject(detalhes);
@@ -419,6 +459,43 @@ public static String getOwnName() throws IOException, URISyntaxException{
 
     return idString;
 }
+
+    public static void sendMsg(String sessionToken, String appToken, int itemsId, int usersId, String content) {
+        try {
+            String jsonInput = "{ \"input\": { \"itemtype\": \"Ticket\", \"items_id\": " + itemsId + ", \"users_id\": " + usersId + ", \"content\": \"" + content + "\", \"is_private\": 0, \"requesttypes_id\": 1, \"sourceitems_id\": 0, \"sourceof_items_id\": 0 } }";
+            
+            URL url = new URL("https://suporte.techsize.com.br/apirest.php/ITILFollowup/");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Session-Token", sessionToken);
+            connection.setRequestProperty("App-Token", appToken);
+
+            connection.setDoOutput(true);
+            DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+            out.writeBytes(jsonInput);
+            out.flush();
+            out.close();
+
+            int responseCode = connection.getResponseCode();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            System.out.println("Response Code: " + responseCode);
+            System.out.println("Response Body: " + response.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 
 public static void uploadFile(String sessionToken, String appToken, String apiUrl, String uploadManifest, String filePath) {

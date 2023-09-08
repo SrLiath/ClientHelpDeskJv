@@ -56,8 +56,9 @@ public class FormInbox extends javax.swing.JPanel {
     private List<File> selectedFiles;
     private JPanel fileListPanel;
 
-    public FormInbox() {
+    public FormInbox() throws IOException, URISyntaxException {
         initComponents();
+        Json.generateConfig(Json.getUrl() + "ITILCategory", Json.getS(), Json.getA(), Json.getU());
         int newWidth = 20;
         int newHeight = 20;
         ImageIcon terminal = new ImageIcon("src/raven/Interface/images/icons/images/cil-terminal.png");
@@ -258,6 +259,7 @@ private JSONObject createJsonObject() throws IOException, URISyntaxException {
     JSONObject jsonObject = new JSONObject();
     jsonObject.put("requester_full_name", tituloChamado.getText().trim());
     jsonObject.put("name", solicitanteChamado.getText().trim() + "/" + Local.getMachineName());
+    System.out.println(categoriaChamado.getSelectedItem().toString() + subCategoria.getSelectedItem().toString() + acaoChamado.getSelectedItem().toString());
     jsonObject.put("itilcategories_id", Dicio.makeCategoryReverse(categoriaChamado.getSelectedItem().toString(), subCategoria.getSelectedItem().toString(), acaoChamado.getSelectedItem().toString()));          // Include acao
     jsonObject.put("urgency", Dicio.urgenciaReverse(urgencia.getSelectedItem().toString()));        // Include urgencia
     jsonObject.put("content", descricaoChamado.getText().trim());
@@ -346,7 +348,7 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel2.setText("Cliente Help Desk");
+        jLabel2.setText("Suporte - TechSize");
 
         javax.swing.GroupLayout BarLayout = new javax.swing.GroupLayout(Bar);
         Bar.setLayout(BarLayout);
@@ -568,6 +570,7 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
         JSONObject jsonObject = null;
                     try {
                         jsonObject = createJsonObject();
+                        System.out.println(jsonObject);
                     } catch (IOException ex) {
                         Logger.getLogger(FormInbox.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (URISyntaxException ex) {

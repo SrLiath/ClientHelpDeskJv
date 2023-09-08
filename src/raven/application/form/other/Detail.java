@@ -2,40 +2,17 @@ package raven.application.form.other;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import com.formdev.flatlaf.FlatClientProperties;
 import java.awt.Image;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import raven.application.Application;
-import raven.controllers.Json;
-import javax.swing.table.DefaultTableModel;
-import org.json.JSONException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.Date;
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.border.Border;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JDialog;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import raven.application.Application;
 import raven.controllers.Dicio;
 import raven.controllers.Json;
@@ -44,14 +21,12 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 
 
 
@@ -59,8 +34,10 @@ public class Detail extends javax.swing.JPanel {
     private Color originalColor;
     private int ownId = Json.getOwnId();
     private JPanel chatPanel ;
+    private int idPanel;
 
     public Detail(String id) throws IOException, URISyntaxException, ParseException {
+        idPanel = Integer.parseInt(id);
         initComponents();
         String detalhes = Json.makeGetRequest(Json.getUrl() + "Ticket/" + id, Json.getS(), Json.getA(), Json.getU());
         JSONObject detalhesJSON = new JSONObject(detalhes);
@@ -125,10 +102,11 @@ public class Detail extends javax.swing.JPanel {
             Document doc = Jsoup.parse(content);
             String decodedContent = doc.text();          
             String formattedText = removeHtmlTags(decodedContent);
-            if (ownId == userId){
-                enviado(chatPanel,Json.getOwnName(),formattedText);
-            }else{
-                recebido(chatPanel, Json.getTecnico(id, userId), formattedText);
+           System.out.println(ownId.toString() + "-------" + userId.toString());
+            if (ownId.toString().equals(userId.toString())) {
+                enviado(chatPanel, Json.getOwnName(), formattedText);
+            } else {
+                recebido(chatPanel, Json.getTecnico(id, Integer.toString(Json.getOwnId())), formattedText);
             }
             chatContainer.add(chatPanel);
             check = 1;
@@ -139,6 +117,9 @@ if (check == 0){
     chatContainer.add(chatPanel);
 }
 frameChat.setViewportView(chatContainer);
+JViewport viewport = frameChat.getViewport();
+viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
+
 
  
 } else {
@@ -259,8 +240,7 @@ frameChat.setViewportView(chatContainer);
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        chatTicket = new javax.swing.JPanel();
-        jTextField1 = new javax.swing.JTextField();
+        textMsg = new javax.swing.JTextField();
         jToggleButton1 = new javax.swing.JToggleButton();
         frameChat = new javax.swing.JScrollPane();
 
@@ -277,7 +257,7 @@ frameChat.setViewportView(chatContainer);
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel2.setText("Cliente Help Desk");
+        jLabel2.setText("Suporte - TechSize");
 
         javax.swing.GroupLayout BarLayout = new javax.swing.GroupLayout(Bar);
         Bar.setLayout(BarLayout);
@@ -442,24 +422,18 @@ frameChat.setViewportView(chatContainer);
             }
         });
 
-        javax.swing.GroupLayout chatTicketLayout = new javax.swing.GroupLayout(chatTicket);
-        chatTicket.setLayout(chatTicketLayout);
-        chatTicketLayout.setHorizontalGroup(
-            chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 320, Short.MAX_VALUE)
-        );
-        chatTicketLayout.setVerticalGroup(
-            chatTicketLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 317, Short.MAX_VALUE)
-        );
-
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        textMsg.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                textMsgActionPerformed(evt);
             }
         });
 
         jToggleButton1.setText("Enviar");
+        jToggleButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jToggleButton1MouseClicked(evt);
+            }
+        });
         jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jToggleButton1ActionPerformed(evt);
@@ -474,17 +448,12 @@ frameChat.setViewportView(chatContainer);
                 .addContainerGap()
                 .addGroup(detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(detailLayout.createSequentialGroup()
-                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
+                        .addComponent(textMsg, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(frameChat))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(detailTicket, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(detailLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(chatTicket, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(487, Short.MAX_VALUE)))
         );
         detailLayout.setVerticalGroup(
             detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -494,13 +463,8 @@ frameChat.setViewportView(chatContainer);
                 .addComponent(frameChat)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(textMsg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
-            .addGroup(detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(detailLayout.createSequentialGroup()
-                    .addGap(70, 70, 70)
-                    .addComponent(chatTicket, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(55, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -539,13 +503,33 @@ frameChat.setViewportView(chatContainer);
         }
     }//GEN-LAST:event_jLabel3MouseClicked
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void textMsgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_textMsgActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_textMsgActionPerformed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jToggleButton1ActionPerformed
+
+    private void jToggleButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jToggleButton1MouseClicked
+        // TODO add your handling code here:
+             String msg = "";
+        msg = textMsg.getText();
+        if (msg != ""){
+        Json.sendMsg(Json.getS(), Json.getA(), idPanel, ownId, msg);
+        }
+        textMsg.setText("");
+         try {
+                Application.showForm(new Detail((String) Integer.toString(idPanel)));
+            } catch (IOException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ParseException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    
+    }//GEN-LAST:event_jToggleButton1MouseClicked
     public static String removeHtmlTags(String htmlText) {
         // Expressão regular para localizar tags HTML
         String regex = "<[^>]+>";
@@ -562,7 +546,6 @@ frameChat.setViewportView(chatContainer);
     private javax.swing.JLabel btnMin;
     private javax.swing.JLabel btnX;
     private javax.swing.JTextField categoriaChamado;
-    private javax.swing.JPanel chatTicket;
     private javax.swing.JTextField dataAbertura;
     private javax.swing.JPanel detail;
     private javax.swing.JPanel detailTicket;
@@ -578,13 +561,13 @@ frameChat.setViewportView(chatContainer);
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JTextField statusChamado;
     private javax.swing.JTextField tecnicoResponsavel;
     private javax.swing.JTextField tempoAtendimento;
     private javax.swing.JTextField tempoSolucao;
     private javax.swing.JLabel terminalt;
+    private javax.swing.JTextField textMsg;
     private javax.swing.JTextField ultimaAtualizacao;
     private javax.swing.JTextField urgenciaChamado;
     // End of variables declaration//GEN-END:variables

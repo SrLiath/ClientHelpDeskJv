@@ -5,7 +5,9 @@
 
 package raven.controllers;
 
+import java.io.BufferedReader;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.json.JSONArray;
@@ -91,18 +93,29 @@ public static String makeCategoryReverse(String categoria, String subCategoria, 
 
     try {
         // Ler o conteúdo do arquivo config.json e transformá-lo em um objeto JSON
-        JSONTokener tokener = new JSONTokener(new FileReader("config.json"));
-        JSONArray jsonArray = new JSONArray(tokener);
+        BufferedReader reader = new BufferedReader(new FileReader("config.json", StandardCharsets.UTF_8));
+        StringBuilder jsonContent = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            jsonContent.append(line);
+        }
+        reader.close();
 
-        // Iterar sobre os elementos do objeto JSON para encontrar o elemento correspondente à string var
+        JSONArray jsonArray = new JSONArray(jsonContent.toString());
+
+        // Iterar sobre os elementos do objeto JSON para encontrar a correspondência com "completename"
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             String completename = jsonObject.optString("completename", "");
+            String name = jsonObject.optString("name", "");
 
             if (var.equals(completename)) {
-                // Se a string var corresponder a completename, obtenha o valor "id"
+                // Se a string var corresponder a completename ou name, obtenha o valor "id"
                 String id = jsonObject.optString("id", "");
                 return id;
+            }else if (categoria.equals(name)|| subCategoria.equals(name)|| acao.equals(name)){
+                // Se a string var corresponder a completename ou name, obtenha o valor "id"
+                String id = jsonObject.optString("id", "");
             }
         }
     } catch (Exception e) {
@@ -111,7 +124,6 @@ public static String makeCategoryReverse(String categoria, String subCategoria, 
 
     return ""; // Retornar uma string vazia se não encontrar correspondência
 }
-
 
 public static String getStatus(Integer value){
            Map<Integer, String> statusMap = new HashMap<>();

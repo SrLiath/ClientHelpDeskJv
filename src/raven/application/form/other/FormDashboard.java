@@ -48,14 +48,9 @@ public class FormDashboard extends javax.swing.JPanel {
     private MatteBorder border;
     public FormDashboard() throws IOException, URISyntaxException, ParseException {
         initComponents();
-
+        userName.setText(Json.getOwnName());
         int newWidth = 20;
         int newHeight = 20;
-        ImageIcon terminal = new ImageIcon("src/raven/Interface/images/icons/images/cil-terminal.png");
-        Image imgt = terminal.getImage();
-        Image imgScalet = imgt.getScaledInstance(14, 14, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcont = new ImageIcon(imgScalet);
-        terminalt.setIcon(scaledIcont);
         //Btn fechar minimizar e maximizar
         ImageIcon iconx = new ImageIcon("src/raven/Interface/images/icons/images/x.png");
         Image imgx = iconx.getImage();
@@ -219,15 +214,15 @@ filtroPanel.addActionListener(new ActionListener() {
         btnMax = new javax.swing.JLabel();
         btnX = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        terminalt = new javax.swing.JLabel();
         filtroBar = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
-        filtroPanel = new javax.swing.JComboBox<>();
+        filtroPanel = new javax.swing.JComboBox<String>();
         hostBar = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        userName = new javax.swing.JLabel();
         hostname = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         chamados = new javax.swing.JTable();
@@ -257,9 +252,6 @@ filtroPanel.addActionListener(new ActionListener() {
         BarLayout.setHorizontalGroup(
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarLayout.createSequentialGroup()
-                .addGap(3, 3, 3)
-                .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -272,12 +264,10 @@ filtroPanel.addActionListener(new ActionListener() {
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(btnX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(BarLayout.createSequentialGroup()
-                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                        .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)))
+                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                    .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -295,16 +285,20 @@ filtroPanel.addActionListener(new ActionListener() {
             }
         });
 
-        filtroPanel.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Novo", "Em Andamento (atribuído)", "Em Andamento (planejado)", "Pendente", "Solucionado", "Fechado" }));
+        filtroPanel.setModel(new javax.swing.DefaultComboBoxModel<String>(new String[] { "Todos", "Novo", "Em Andamento (atribuído)", "Em Andamento (planejado)", "Pendente", "Solucionado", "Fechado" }));
         filtroPanel.setSelectedItem("Novo");
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(9, 193, 255));
         jLabel5.setText("Hostname:");
 
-        jLabel6.setText("TechSize Client");
+        userName.setText("TechSize Client");
 
         hostname.setText("host");
+
+        jLabel7.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(9, 193, 255));
+        jLabel7.setText("Usuario:");
 
         javax.swing.GroupLayout hostBarLayout = new javax.swing.GroupLayout(hostBar);
         hostBar.setLayout(hostBarLayout);
@@ -316,7 +310,9 @@ filtroPanel.addActionListener(new ActionListener() {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(hostname)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel6)
+                .addComponent(jLabel7)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(userName)
                 .addGap(19, 19, 19))
         );
         hostBarLayout.setVerticalGroup(
@@ -324,9 +320,10 @@ filtroPanel.addActionListener(new ActionListener() {
             .addGroup(hostBarLayout.createSequentialGroup()
                 .addGroup(hostBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel6)
-                    .addComponent(hostname))
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(userName)
+                    .addComponent(hostname)
+                    .addComponent(jLabel7))
+                .addGap(0, 12, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout filtroBarLayout = new javax.swing.GroupLayout(filtroBar);
@@ -465,7 +462,7 @@ filtroPanel.addActionListener(new ActionListener() {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
                 .addGap(1, 1, 1)
                 .addComponent(bottomBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -524,10 +521,10 @@ filtroPanel.addActionListener(new ActionListener() {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel terminalt;
+    private javax.swing.JLabel userName;
     // End of variables declaration//GEN-END:variables
     private void updateTableData(String filtro) throws IOException, URISyntaxException, ParseException {
     // Get the selected filter option

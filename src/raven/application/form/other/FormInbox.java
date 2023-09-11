@@ -61,11 +61,7 @@ public class FormInbox extends javax.swing.JPanel {
         Json.generateConfig(Json.getUrl() + "ITILCategory", Json.getS(), Json.getA(), Json.getU());
         int newWidth = 20;
         int newHeight = 20;
-        ImageIcon terminal = new ImageIcon("src/raven/Interface/images/icons/images/cil-terminal.png");
-        Image imgt = terminal.getImage();
-        Image imgScalet = imgt.getScaledInstance(14, 14, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcont = new ImageIcon(imgScalet);
-        terminalt.setIcon(scaledIcont);
+
  //Btn fechar minimizar e maximizar
         ImageIcon iconx = new ImageIcon("src/raven/Interface/images/icons/images/x.png");
         Image imgx = iconx.getImage();
@@ -311,7 +307,6 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
         btnMax = new javax.swing.JLabel();
         btnX = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        terminalt = new javax.swing.JLabel();
         leftPanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         tituloChamado = new javax.swing.JTextField();
@@ -329,10 +324,10 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
         jLabel6 = new javax.swing.JLabel();
         adicionarAnexo = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
-        categoriaChamado = new javax.swing.JComboBox<>();
-        subCategoria = new javax.swing.JComboBox<>();
-        acaoChamado = new javax.swing.JComboBox<>();
-        urgencia = new javax.swing.JComboBox<>();
+        categoriaChamado = new javax.swing.JComboBox<String>();
+        subCategoria = new javax.swing.JComboBox<String>();
+        acaoChamado = new javax.swing.JComboBox<String>();
+        urgencia = new javax.swing.JComboBox<String>();
         filesSelected = new javax.swing.JScrollPane();
 
         btnMin.setFont(new java.awt.Font("Roboto Black", 1, 24)); // NOI18N
@@ -355,9 +350,6 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
         BarLayout.setHorizontalGroup(
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarLayout.createSequentialGroup()
-                .addGap(3, 3, 3)
-                .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -370,12 +362,10 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(btnX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(BarLayout.createSequentialGroup()
-                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                        .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)))
+                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                    .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -471,7 +461,7 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
 
         jLabel7.setText("Arquivo(s) (20MB máx)");
 
-        urgencia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Muito Alta", "Alta", "Média", "Baixa", "Muito Baixa" }));
+        urgencia.setModel(new javax.swing.DefaultComboBoxModel<String>(new String[] { "Muito Alta", "Alta", "Média", "Baixa", "Muito Baixa" }));
         urgencia.setSelectedItem("Média");
 
         javax.swing.GroupLayout rightPanelLayout = new javax.swing.GroupLayout(rightPanel);
@@ -659,7 +649,6 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
     private javax.swing.JPanel rightPanel;
     private javax.swing.JTextField solicitanteChamado;
     private javax.swing.JComboBox<String> subCategoria;
-    private javax.swing.JLabel terminalt;
     private javax.swing.JTextField tituloChamado;
     private javax.swing.JComboBox<String> urgencia;
     // End of variables declaration//GEN-END:variables

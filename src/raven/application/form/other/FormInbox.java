@@ -38,20 +38,10 @@ import raven.application.Application;
 import raven.controllers.Dicio;
 import raven.controllers.Json;
 import raven.controllers.Local;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.util.EntityUtils;
+
 import org.json.JSONObject;
-/**
- *
- * @author Raven
- */
+
+
 public class FormInbox extends javax.swing.JPanel {
     private List<File> selectedFiles;
     private JPanel fileListPanel;
@@ -97,8 +87,8 @@ public class FormInbox extends javax.swing.JPanel {
             }
         });
     
-    leftPanel.putClientProperty(FlatClientProperties.STYLE,"background: $menu.hbbar;");
-    rightPanel.putClientProperty(FlatClientProperties.STYLE,"background: $menu.hbbar;");
+    //leftPanel.putClientProperty(FlatClientProperties.STYLE,"background: $Menu.hbbar.left;");
+    rightPanel.putClientProperty(FlatClientProperties.STYLE,"background: $Menu.hbbar.right;");
     Bar.putClientProperty(FlatClientProperties.STYLE,"background: $Bar.background;");
             try {
     JSONTokener tokener = new JSONTokener(new InputStreamReader(new FileInputStream("config.json"), "UTF-8"));
@@ -324,10 +314,10 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
         jLabel6 = new javax.swing.JLabel();
         adicionarAnexo = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
-        categoriaChamado = new javax.swing.JComboBox<String>();
-        subCategoria = new javax.swing.JComboBox<String>();
-        acaoChamado = new javax.swing.JComboBox<String>();
-        urgencia = new javax.swing.JComboBox<String>();
+        categoriaChamado = new javax.swing.JComboBox<>();
+        subCategoria = new javax.swing.JComboBox<>();
+        acaoChamado = new javax.swing.JComboBox<>();
+        urgencia = new javax.swing.JComboBox<>();
         filesSelected = new javax.swing.JScrollPane();
 
         btnMin.setFont(new java.awt.Font("Roboto Black", 1, 24)); // NOI18N
@@ -350,6 +340,7 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
         BarLayout.setHorizontalGroup(
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarLayout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -461,7 +452,7 @@ private void removeHighlight(javax.swing.JTextArea textArea) {
 
         jLabel7.setText("Arquivo(s) (20MB máx)");
 
-        urgencia.setModel(new javax.swing.DefaultComboBoxModel<String>(new String[] { "Muito Alta", "Alta", "Média", "Baixa", "Muito Baixa" }));
+        urgencia.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Muito Alta", "Alta", "Média", "Baixa", "Muito Baixa" }));
         urgencia.setSelectedItem("Média");
 
         javax.swing.GroupLayout rightPanelLayout = new javax.swing.GroupLayout(rightPanel);

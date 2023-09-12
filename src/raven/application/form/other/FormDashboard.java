@@ -217,7 +217,7 @@ filtroPanel.addActionListener(new ActionListener() {
         filtroBar = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
-        filtroPanel = new javax.swing.JComboBox<String>();
+        filtroPanel = new javax.swing.JComboBox<>();
         hostBar = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         userName = new javax.swing.JLabel();
@@ -252,6 +252,7 @@ filtroPanel.addActionListener(new ActionListener() {
         BarLayout.setHorizontalGroup(
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarLayout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -285,7 +286,7 @@ filtroPanel.addActionListener(new ActionListener() {
             }
         });
 
-        filtroPanel.setModel(new javax.swing.DefaultComboBoxModel<String>(new String[] { "Todos", "Novo", "Em Andamento (atribuído)", "Em Andamento (planejado)", "Pendente", "Solucionado", "Fechado" }));
+        filtroPanel.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Novo", "Em Andamento (atribuído)", "Em Andamento (planejado)", "Pendente", "Solucionado", "Fechado" }));
         filtroPanel.setSelectedItem("Novo");
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -323,7 +324,7 @@ filtroPanel.addActionListener(new ActionListener() {
                     .addComponent(userName)
                     .addComponent(hostname)
                     .addComponent(jLabel7))
-                .addGap(0, 12, Short.MAX_VALUE))
+                .addGap(0, 0, 0))
         );
 
         javax.swing.GroupLayout filtroBarLayout = new javax.swing.GroupLayout(filtroBar);
@@ -462,7 +463,7 @@ filtroPanel.addActionListener(new ActionListener() {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
                 .addGap(1, 1, 1)
                 .addComponent(bottomBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BoxLayout;
+import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
 
@@ -160,11 +161,6 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
 
         int newWidth = 20;
         int newHeight = 20;
-        ImageIcon terminal = new ImageIcon("src/raven/Interface/images/icons/images/cil-terminal.png");
-        Image imgt = terminal.getImage();
-        Image imgScalet = imgt.getScaledInstance(14, 14, Image.SCALE_SMOOTH);
-        ImageIcon scaledIcont = new ImageIcon(imgScalet);
-        terminalt.setIcon(scaledIcont);
         //Btn fechar minimizar e maximizar
         ImageIcon iconx = new ImageIcon("src/raven/Interface/images/icons/images/x.png");
         Image imgx = iconx.getImage();
@@ -219,7 +215,6 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
         btnMax = new javax.swing.JLabel();
         btnX = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        terminalt = new javax.swing.JLabel();
         detail = new javax.swing.JPanel();
         detailTicket = new javax.swing.JPanel();
         dataAbertura = new javax.swing.JTextField();
@@ -264,9 +259,7 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
         BarLayout.setHorizontalGroup(
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(BarLayout.createSequentialGroup()
-                .addGap(3, 3, 3)
-                .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
+                .addContainerGap()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnMin, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -279,12 +272,10 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
             BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(btnX, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(BarLayout.createSequentialGroup()
-                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(terminalt, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                        .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)))
+                .addGroup(BarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnMin, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
+                    .addComponent(btnMax, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -428,7 +419,7 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
             }
         });
 
-        jToggleButton1.setText("Enviar");
+        jToggleButton1.setLabel("");
         jToggleButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jToggleButton1MouseClicked(evt);
@@ -459,13 +450,22 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
             detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(detailTicket, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailLayout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(frameChat)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(textMsg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(detailLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, detailLayout.createSequentialGroup()
+                        .addComponent(textMsg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
+
+        // Carregue a imagem e ajuste-a ao tamanho do botão
+        ImageIcon icon = new ImageIcon(getClass().getResource("/raven/Interface/images/icons/images/send.png"));
+        Image img = icon.getImage().getScaledInstance(15,15,Image.SCALE_SMOOTH);
+        icon = new ImageIcon(img);
+
+        jToggleButton1.setIcon(icon);
+        frameChat.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -566,7 +566,6 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
     private javax.swing.JTextField tecnicoResponsavel;
     private javax.swing.JTextField tempoAtendimento;
     private javax.swing.JTextField tempoSolucao;
-    private javax.swing.JLabel terminalt;
     private javax.swing.JTextField textMsg;
     private javax.swing.JTextField ultimaAtualizacao;
     private javax.swing.JTextField urgenciaChamado;

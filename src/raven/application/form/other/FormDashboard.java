@@ -2,14 +2,19 @@ package raven.application.form.other;
 
 
 import com.formdev.flatlaf.FlatClientProperties;
+import java.awt.AWTEvent;
 import java.awt.Image;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.EventQueue;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import javax.swing.ImageIcon;
@@ -18,6 +23,10 @@ import javax.swing.SwingConstants;
 import raven.application.Application;
 import raven.controllers.Json;
 import javax.swing.table.DefaultTableModel;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.awt.TrayIcon;
+import java.nio.file.Files;
 import org.json.JSONException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,13 +41,24 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.swing.JLabel;
 import javax.swing.border.MatteBorder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import raven.application.Application;
 import raven.controllers.Dicio;
 import raven.controllers.Local;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
 /**
  *
  * @author Raven
@@ -46,11 +66,84 @@ import raven.controllers.Local;
 public class FormDashboard extends javax.swing.JPanel {
     private JPanel panelBody;
     private MatteBorder border;
+    private static String apiBellCheck;
+    private static boolean tarefaEmExecucao = false;
+    private static int bellWinCheck = 0;
+    private static TimerTask tarefa;
+    private static Timer timer = new Timer();
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
     public FormDashboard() throws IOException, URISyntaxException, ParseException {
-        initComponents();
-        userName.setText(Json.getOwnName());
+        initComponents();  
         int newWidth = 20;
         int newHeight = 20;
+        ImageIcon iconb = new ImageIcon("src/raven/Interface/images/icons/images/bell.png");
+        Image imgb = iconb.getImage();
+        Image imgScaleb = imgb.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+        ImageIcon scaledIconb = new ImageIcon(imgScaleb);
+        bellRing.setIcon(scaledIconb);
+        if(tarefaEmExecucao){
+            tarefa.cancel();
+            timer.purge();
+            tarefaEmExecucao = false;
+
+        }
+        if (!tarefaEmExecucao) {
+            tarefaEmExecucao = true;            
+            tarefa = new TimerTask() {
+                @Override
+public void run() {
+    try {
+        apiBellCheck = Json.makeGetRequest(Json.getUrl() + "search/Ticket",Json.getS(),Json.getA(), Json.getU());
+        File arquivo = new File("bell.json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        
+        if (!arquivo.exists()) {
+            // Create and write the apiBellCheck JSON response to "bell.json" if it doesn't exist.
+            objectMapper.writeValue(arquivo, objectMapper.readTree(apiBellCheck));
+        }
+        
+        // Read the local "bell.json" file and parse it as JSON.
+        JsonNode localBell = objectMapper.readTree(arquivo);
+
+        // Compare the values in the "data" array's "19" field with the new apiBellCheck response.
+        JsonNode apiDataArray = objectMapper.readTree(apiBellCheck).get("data");
+        JsonNode localDataArray = localBell.get("data");
+
+        for (int i = 0; i < apiDataArray.size(); i++) {
+            String apiDate = apiDataArray.get(i).get("19").asText();
+            String localDate = localDataArray.get(i).get("19").asText();
+
+            if (!apiDate.equals(localDate)) {
+                JLabel bellRingInsta = getBellRing();
+                int newWidth = 20;
+                int newHeight = 20;
+                ImageIcon iconb = new ImageIcon("src/raven/Interface/images/icons/images/bellAlert.png");
+                Image imgb = iconb.getImage();
+                Image imgScaleb = imgb.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                ImageIcon scaledIconb = new ImageIcon(imgScaleb);
+                bellRingInsta.setIcon(scaledIconb); 
+                bellWinCheck++;
+                break;
+            }
+        }
+        if(bellWinCheck == 1){
+           TrayIcon tray = Application.returnTray();
+           tray.displayMessage("Nova Atualização em seu chamado", "Acesse seu aplicativo helpDesk para verificar.", TrayIcon.MessageType.NONE);
+        }
+
+    } catch (IOException ex) {
+        Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+    }               catch (URISyntaxException ex) { 
+                        Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+                    } 
+}
+            };
+    
+            timer.scheduleAtFixedRate(tarefa, 0, 6000);
+        } 
+        userName.setText(Json.getOwnName());
+
         //Btn fechar minimizar e maximizar
         ImageIcon iconx = new ImageIcon("src/raven/Interface/images/icons/images/x.png");
         Image imgx = iconx.getImage();
@@ -108,8 +201,8 @@ try {
         String[] partes = titulo.split("/");
         titulo = partes[0];
         String status = jsonData.optString("12", "");
-        String tempoAtendimento = jsonData.optString("5", "");
-        String tempoSolucaoStr = jsonData.optString("18", "");
+        String tempoAtendimentoStr = jsonData.optString("18", "");
+        String tempoSolucaoStr = jsonData.optString("155", "");
         String categoria = jsonData.optString("7", "");
 
         String dataCriacaoStr = jsonData.optString("15", "");
@@ -117,26 +210,33 @@ try {
         
         Date dataCriacao = null;
         Date ultimaAtualizacao = null;
-       
+        Date tempoAtendimento = null;
         
         try {
+            tempoAtendimento = inputDateFormat.parse(tempoAtendimentoStr);
             dataCriacao = inputDateFormat.parse(dataCriacaoStr);
             ultimaAtualizacao = inputDateFormat.parse(ultimaAtualizacaoStr);
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        String formattedTempoAtendimento;
         String formattedTempoSolucao;
-        if(!tempoSolucaoStr.isEmpty()){
-          Date tempoSolucao = null;
-          tempoSolucao = inputDateFormat.parse(tempoSolucaoStr); 
-          formattedTempoSolucao = (tempoSolucao != null) ? outputDateFormat.format(tempoSolucao) : ""; 
-        }else{formattedTempoSolucao = "";}
+        if("".equals(tempoSolucaoStr)){formattedTempoSolucao = "";}else{
+            Date tempoSolucao = null;
+            tempoSolucao = inputDateFormat.parse(tempoSolucaoStr);
+            formattedTempoSolucao = (tempoSolucao != null) ? outputDateFormat.format(tempoSolucao) : "";
+        }
+        if("".equals(tempoAtendimentoStr)){formattedTempoAtendimento = "";}else{
+            Date tempoAtendimentoDate = null;
+            tempoAtendimentoDate = inputDateFormat.parse(tempoAtendimentoStr);
+            formattedTempoAtendimento = (tempoAtendimentoDate != null) ? outputDateFormat.format(tempoAtendimentoDate) : "";
+        }
 
         String formattedDataCriacao = (dataCriacao != null) ? outputDateFormat.format(dataCriacao) : "";
         String formattedUltimaAtualizacao = (ultimaAtualizacao != null) ? outputDateFormat.format(ultimaAtualizacao) : "";
 
         // Add the data to the table model
-        model.addRow(new Object[]{id, titulo, status, tempoAtendimento, formattedTempoSolucao, categoria, formattedDataCriacao, formattedUltimaAtualizacao});
+        model.addRow(new Object[]{id, titulo, status, formattedTempoSolucao,formattedTempoAtendimento , categoria, formattedDataCriacao, formattedUltimaAtualizacao});
       }
 } catch (JSONException e) {
     e.printStackTrace();
@@ -199,11 +299,98 @@ filtroPanel.addActionListener(new ActionListener() {
         }
     }
 });
-
+ bellRing.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    try {
+                        // Abra o dropdown de notificações quando o ícone é clicado
+                        showNotificationDropdown(bellRing);
+                    } catch (IOException ex) {
+                        Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (URISyntaxException ex) {
+                        Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
     }
     
+public  void showNotificationDropdown(Component component) throws IOException, URISyntaxException {
+    JPopupMenu popupMenu = new JPopupMenu();
 
+    // Assuming apiResponseBell contains the JSON data you provided
+    JSONObject jsonData = new JSONObject(apiBellCheck);
+    JSONArray data = jsonData.getJSONArray("data");
 
+    // Convert JSONArray to a list of JSONObjects
+    java.util.List<JSONObject> notificationList = new ArrayList<>();
+    for (int i = 0; i < data.length(); i++) {
+        notificationList.add(data.getJSONObject(i));
+    }
+
+    // Sort the list by timestamp ("19") in descending order (most recent first)
+    Collections.sort(notificationList, (o1, o2) -> {
+        String timestamp1 = o1.getString("19");
+        String timestamp2 = o2.getString("19");
+        return timestamp2.compareTo(timestamp1);
+    });
+
+    // Add the five most recent notifications to the popup menu
+    int maxNotifications = Math.min(notificationList.size(), 5);
+    for (int i = 0; i < maxNotifications; i++) {
+        JSONObject notification = notificationList.get(i);
+        String name = notification.getString("21");
+        JMenuItem item = new JMenuItem(name);
+        popupMenu.add(item);
+
+        // Add an action listener to handle the notification click event
+        item.addActionListener(e -> {
+            // Access the ID or other relevant data if needed
+            int id = notification.getInt("2");
+            try {
+                // Perform your action here based on the notification data
+                Application.showForm(new Detail(Integer.toString(id)));
+            } catch (IOException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ParseException ex) {
+                Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+      File arquivo = new File("bell.json");
+      objectMapper.writeValue(arquivo, objectMapper.readTree(apiBellCheck));
+                int newWidth = 20;
+                int newHeight = 20;
+                ImageIcon iconb = new ImageIcon("src/raven/Interface/images/icons/images/bell.png");
+                Image imgb = iconb.getImage();
+                Image imgScaleb = imgb.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                ImageIcon scaledIconb = new ImageIcon(imgScaleb);
+                bellRing.setIcon(scaledIconb); 
+                bellWinCheck = 0;
+    popupMenu.show(component, -5, component.getHeight());
+
+    // Rest of your code for closing the popup menu when clicking outside remains the same
+    EventQueue.invokeLater(() -> {
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            public void eventDispatched(AWTEvent e) {
+                if (e instanceof MouseEvent && ((MouseEvent) e).getID() == MouseEvent.MOUSE_CLICKED) {
+                    MouseEvent event = (MouseEvent) e;
+                    if (!SwingUtilities.isDescendingFrom(event.getComponent(), popupMenu)) {
+                        popupMenu.setVisible(false);
+                        Toolkit.getDefaultToolkit().removeAWTEventListener(this);
+                    }
+                }
+            }
+        }, AWTEvent.MOUSE_EVENT_MASK);
+    });
+}
+
+public JLabel getBellRing() {
+    return bellRing;
+}
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -223,6 +410,7 @@ filtroPanel.addActionListener(new ActionListener() {
         userName = new javax.swing.JLabel();
         hostname = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        bellRing = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         chamados = new javax.swing.JTable();
@@ -336,7 +524,9 @@ filtroPanel.addActionListener(new ActionListener() {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filtroPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 167, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 499, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 468, Short.MAX_VALUE)
+                .addComponent(bellRing, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
             .addComponent(hostBar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -347,10 +537,12 @@ filtroPanel.addActionListener(new ActionListener() {
                 .addGap(0, 0, 0)
                 .addComponent(hostBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(filtroBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jButton2)
-                    .addComponent(filtroPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(filtroBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(filtroBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1)
+                        .addComponent(jButton2)
+                        .addComponent(filtroPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(bellRing, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -507,6 +699,7 @@ filtroPanel.addActionListener(new ActionListener() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Bar;
+    private javax.swing.JLabel bellRing;
     private javax.swing.JPanel bottomBar;
     private javax.swing.JLabel btnMax;
     private javax.swing.JLabel btnMin;

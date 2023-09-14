@@ -41,9 +41,7 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
-                  <Component id="terminalt" min="-2" pref="17" max="-2" attributes="0"/>
-                  <EmptySpace min="0" pref="0" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="btnMin" min="-2" pref="25" max="-2" attributes="0"/>
@@ -58,13 +56,10 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="btnX" alignment="0" max="32767" attributes="0"/>
               <Group type="102" alignment="0" attributes="0">
-                  <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="terminalt" alignment="1" min="-2" pref="25" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="jLabel2" max="32767" attributes="0"/>
-                          <Component id="btnMin" alignment="1" pref="25" max="32767" attributes="0"/>
-                          <Component id="btnMax" alignment="1" pref="25" max="32767" attributes="0"/>
-                      </Group>
+                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                      <Component id="jLabel2" max="32767" attributes="0"/>
+                      <Component id="btnMin" alignment="1" pref="25" max="32767" attributes="0"/>
+                      <Component id="btnMax" alignment="1" pref="25" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
@@ -107,8 +102,6 @@
             <Property name="text" type="java.lang.String" value="Suporte - TechSize"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JLabel" name="terminalt">
-        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="detail">
@@ -135,12 +128,14 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Component id="detailTicket" max="32767" attributes="0"/>
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
                   <Component id="frameChat" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="textMsg" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="jToggleButton1" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jToggleButton1" min="-2" pref="23" max="-2" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="textMsg" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
                   </Group>
               </Group>
           </Group>
@@ -372,14 +367,20 @@
         </Component>
         <Component class="javax.swing.JToggleButton" name="jToggleButton1">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Enviar"/>
+            <Property name="label" type="java.lang.String" value=""/>
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jToggleButton1MouseClicked"/>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jToggleButton1ActionPerformed"/>
           </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="// Carregue a imagem e ajuste-a ao tamanho do bot&#xe3;o&#xa;ImageIcon icon = new ImageIcon(getClass().getResource(&quot;/raven/Interface/images/icons/images/send.png&quot;));&#xa;Image img = icon.getImage().getScaledInstance(15,15,Image.SCALE_SMOOTH);&#xa;icon = new ImageIcon(img);&#xa;&#xa;jToggleButton1.setIcon(icon);"/>
+          </AuxValues>
         </Component>
         <Container class="javax.swing.JScrollPane" name="frameChat">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="frameChat.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);"/>
+          </AuxValues>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
         </Container>

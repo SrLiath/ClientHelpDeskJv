@@ -59,8 +59,9 @@ public class Application extends javax.swing.JFrame {
     private int mouseX, mouseY;
     private static Application app;
     private MainForm mainForm;
+    private static TrayIcon trayIcon;
     private static Dimension originalSize = new Dimension(1000, 520);
-     
+
     public Application() throws InterruptedException {
        ImageIcon icon = new ImageIcon("Interface/images/icone_sistema.png"); // Atualize o caminho conforme o local do ícone
         setIconImage(icon.getImage());
@@ -170,7 +171,7 @@ public class Application extends javax.swing.JFrame {
                         }
                     });
                     popup.add(exitItem);
-                    TrayIcon trayIcon = new TrayIcon(resizedIcon, "Client Help Desk", popup);
+                    trayIcon = new TrayIcon(resizedIcon, "Client Help Desk", popup);
                     trayIcon.setImageAutoSize(true);
                     trayIcon.addMouseListener(new MouseAdapter() {
             private long lastClickTime = 0;
@@ -269,7 +270,10 @@ private void openLoginScreen() {
         app.mainForm.showForm(component);
     }
 
-
+    public static TrayIcon returnTray(){
+         return trayIcon;
+     }
+         
     public static void logout() {
         FlatAnimatedLafChange.showSnapshot();
         FlatAnimatedLafChange.hideSnapshotWithAnimation();

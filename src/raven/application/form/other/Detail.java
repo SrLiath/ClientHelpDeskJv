@@ -21,6 +21,8 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,6 +30,7 @@ import java.util.regex.Pattern;
 import javax.swing.BoxLayout;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import org.json.JSONTokener;
 
 
 
@@ -86,6 +89,72 @@ public class Detail extends javax.swing.JPanel {
         if (tecnico != null && !tecnico.isEmpty()) {
     int check = 0;
     String detalhesTecnicos = Json.makeGetRequest(Json.getUrl() + "Ticket/" + id + "/ITILFollowup/", Json.getS(), Json.getA(), Json.getU());
+    String documentItenss = Json.makeGetRequest(Json.getUrl() + "Ticket/" + id + "/Document_Item/", Json.getS(), Json.getA(), Json.getU());
+
+    JSONArray detalhesTecnicosArray = new JSONArray(detalhesTecnicos);
+    JSONArray documentItensArray = new JSONArray(documentItenss);
+
+for (int i = 0; i < documentItensArray.length(); i++) {
+    JSONObject documentItem = documentItensArray.getJSONObject(i);
+
+    // Verifique se 'rel' é igual a "Document"
+    if (documentItem.has("links")) {
+        JSONArray linksArray = documentItem.getJSONArray("links");
+        for (int j = 0; j < linksArray.length(); j++) {
+            JSONObject linkObj = linksArray.getJSONObject(j);
+            if (linkObj.has("rel") && linkObj.getString("rel").equals("Document")) {
+                String href = linkObj.getString("href");
+                String dados = Json.makeGetRequest(href, Json.getS(), Json.getA(), Json.getU());
+
+                // Analise os dados obtidos
+                JSONObject dadosObj = new JSONObject(dados);
+                
+                 if (dadosObj.has("date_creation")) {
+                String dataCriacao = dadosObj.getString("date_creation");
+                dadosObj.put("date", dataCriacao);
+                dadosObj.put("content", "");
+
+                dadosObj.remove("date_creation");
+    }
+                detalhesTecnicosArray.put(dadosObj);
+            }
+        }
+    }
+}
+
+// Agora, detalhesTecnicosArray contém os novos dados obtidos
+String novoDetalhesTecnicos = detalhesTecnicosArray.toString();
+JSONArray detalhesTecnicosArrayD = new JSONArray(new JSONTokener(novoDetalhesTecnicos));
+
+        // 2. Definir um comparador personalizado para datas
+        Comparator<JSONObject> dateComparator = new Comparator<JSONObject>() {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            @Override
+            public int compare(JSONObject obj1, JSONObject obj2) {
+                try {
+                    Date date1 = dateFormat.parse(obj1.getString("date"));
+                    Date date2 = dateFormat.parse(obj2.getString("date"));
+                    return date1.compareTo(date2);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            }
+        };
+
+        // 3. Converter o JSONArray para uma lista de objetos JSONObject
+        List<JSONObject> detalhesTecnicosList = new ArrayList<>();
+        for (int i = 0; i < detalhesTecnicosArray.length(); i++) {
+            detalhesTecnicosList.add(detalhesTecnicosArray.getJSONObject(i));
+        }
+
+        // 4. Classificar a lista com base nas datas
+        Collections.sort(detalhesTecnicosList, dateComparator);
+
+        // 5. Converter a lista de volta para um JSONArray
+        JSONArray detalhesTecnicosArrayOrdenados = new JSONArray(detalhesTecnicosList);
+        detalhesTecnicos = detalhesTecnicosArrayOrdenados.toString();
     JSONArray tecnicoDetalhesArray = new JSONArray(detalhesTecnicos);
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     // Converter JSONArray em uma lista de objetos JSON
@@ -103,12 +172,23 @@ public class Detail extends javax.swing.JPanel {
             Document doc = Jsoup.parse(content);
             String decodedContent = doc.text();          
             String formattedText = removeHtmlTags(decodedContent);
-           System.out.println(ownId.toString() + "-------" + userId.toString());
+            String mime = item.has("mime") ? item.getString("mime") : "";
+            if (mime.equals("")){
             if (ownId.toString().equals(userId.toString())) {
                 enviado(chatPanel, Json.getOwnName(), formattedText);
             } else {
                 recebido(chatPanel, Json.getTecnico(id, Integer.toString(Json.getOwnId())), formattedText);
+            }}else{
+                  if (!ownId.toString().equals(userId.toString())) {
+                String name = item.getString("filename");
+                enviadoFile(chatPanel, Json.getOwnName(), name, item);
+            } else if(!mime.equals("")) {
+                String name = item.getString("filename");
+                recebidoFile(chatPanel, Json.getOwnName(), name, item);
             }
+
+            }
+            
             chatContainer.add(chatPanel);
             check = 1;
 
@@ -579,10 +659,18 @@ viewport.setViewPosition(new java.awt.Point(0, viewport.getViewSize().height));
     }
 
     public void recebido(JPanel chatPanel, String nome, String message) {
-        // Crie uma instância do DetailChat (supondo que DetailChat seja um JPanel)
         DetailChat detailChat = new DetailChat(nome, message);
 
-        // Adicione o DetailChat ao JPanel chatPanel
         chatPanel.add(detailChat);
+    }
+    public void enviadoFile(JPanel chatPanel, String nome, String nomeFile, JSONObject json) {
+        DetailChatFileReceive detailChatOwn = new DetailChatFileReceive(nome, nomeFile, json);
+
+        chatPanel.add(detailChatOwn);
+    }
+        public void recebidoFile(JPanel chatPanel, String nome, String nomeFile, JSONObject json) {
+        DetailChatFileSent detailChatOwn = new DetailChatFileSent(nome, nomeFile, json);
+
+        chatPanel.add(detailChatOwn);
     }
 }

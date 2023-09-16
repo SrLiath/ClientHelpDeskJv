@@ -71,6 +71,7 @@ public class FormDashboard extends javax.swing.JPanel {
     private static int bellWinCheck = 0;
     private static TimerTask tarefa;
     private static Timer timer = new Timer();
+    private static String apiResponsex;
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     public FormDashboard() throws IOException, URISyntaxException, ParseException {
@@ -86,6 +87,7 @@ public class FormDashboard extends javax.swing.JPanel {
             tarefa.cancel();
             timer.purge();
             tarefaEmExecucao = false;
+            timer = new Timer();
 
         }
         if (!tarefaEmExecucao) {
@@ -94,7 +96,8 @@ public class FormDashboard extends javax.swing.JPanel {
                 @Override
 public void run() {
     try {
-        apiBellCheck = Json.makeGetRequest(Json.getUrl() + "search/Ticket",Json.getS(),Json.getA(), Json.getU());
+        apiBellCheck = Json.makeGetRequestPanel(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), "0");
+
         File arquivo = new File("bell.json");
         ObjectMapper objectMapper = new ObjectMapper();
         
@@ -182,8 +185,7 @@ public void run() {
         bottomBar.putClientProperty(FlatClientProperties.STYLE,"background: $Panel.left.background;");
 
         hostname.setText(Local.getMachineName());
-String apiResponsex = Json.makeGetRequestPanel(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), "1");
-System.out.println("aqui " + apiResponsex);
+        apiResponsex = Json.makeGetRequestPanel(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), "1");
 try {
     JSONObject jsonResponse = new JSONObject(apiResponsex);
     JSONArray jsonArray = jsonResponse.getJSONArray("data");
@@ -729,7 +731,7 @@ public JLabel getBellRing() {
     model.setRowCount(0);
     filtro = Dicio.getStatusReverse(filtro);
 
-String apiResponsex = Json.makeGetRequestPanel(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), filtro);
+    apiResponsex = Json.makeGetRequestPanel(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), filtro);
 System.out.println("aqui 2" + apiResponsex);
 try {
     JSONObject jsonResponse = new JSONObject(apiResponsex);
@@ -740,15 +742,14 @@ try {
         JSONObject jsonData = jsonArray.getJSONObject(i);
 
 
-        
-        // Parse and format the data
+         // Parse and format the data
         String id = jsonData.optString("2", "");
         String titulo = jsonData.optString("1", "");
         String[] partes = titulo.split("/");
         titulo = partes[0];
         String status = jsonData.optString("12", "");
-        String tempoAtendimento = jsonData.optString("5", "");
-        String tempoSolucaoStr = jsonData.optString("18", "");
+        String tempoAtendimentoStr = jsonData.optString("18", "");
+        String tempoSolucaoStr = jsonData.optString("155", "");
         String categoria = jsonData.optString("7", "");
 
         String dataCriacaoStr = jsonData.optString("15", "");
@@ -756,27 +757,34 @@ try {
         
         Date dataCriacao = null;
         Date ultimaAtualizacao = null;
-       
+        Date tempoAtendimento = null;
         
         try {
+            tempoAtendimento = inputDateFormat.parse(tempoAtendimentoStr);
             dataCriacao = inputDateFormat.parse(dataCriacaoStr);
             ultimaAtualizacao = inputDateFormat.parse(ultimaAtualizacaoStr);
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        String formattedTempoAtendimento;
         String formattedTempoSolucao;
-        if(!tempoSolucaoStr.isEmpty()){
-          Date tempoSolucao = null;
-          tempoSolucao = inputDateFormat.parse(tempoSolucaoStr); 
-          formattedTempoSolucao = (tempoSolucao != null) ? outputDateFormat.format(tempoSolucao) : ""; 
-        }else{formattedTempoSolucao = "";}
+        if("".equals(tempoSolucaoStr)){formattedTempoSolucao = "";}else{
+            Date tempoSolucao = null;
+            tempoSolucao = inputDateFormat.parse(tempoSolucaoStr);
+            formattedTempoSolucao = (tempoSolucao != null) ? outputDateFormat.format(tempoSolucao) : "";
+        }
+        if("".equals(tempoAtendimentoStr)){formattedTempoAtendimento = "";}else{
+            Date tempoAtendimentoDate = null;
+            tempoAtendimentoDate = inputDateFormat.parse(tempoAtendimentoStr);
+            formattedTempoAtendimento = (tempoAtendimentoDate != null) ? outputDateFormat.format(tempoAtendimentoDate) : "";
+        }
 
         String formattedDataCriacao = (dataCriacao != null) ? outputDateFormat.format(dataCriacao) : "";
         String formattedUltimaAtualizacao = (ultimaAtualizacao != null) ? outputDateFormat.format(ultimaAtualizacao) : "";
 
-        
-        model.addRow(new Object[]{id, titulo, status, tempoAtendimento, formattedTempoSolucao, categoria, formattedDataCriacao, formattedUltimaAtualizacao});
-      }
+        // Add the data to the table model
+        model.addRow(new Object[]{id, titulo, status, formattedTempoSolucao,formattedTempoAtendimento , categoria, formattedDataCriacao, formattedUltimaAtualizacao});
+   }
 } catch (JSONException e) {
     e.printStackTrace();
 }

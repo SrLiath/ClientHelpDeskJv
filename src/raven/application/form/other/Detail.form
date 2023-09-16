@@ -366,9 +366,6 @@
           </Events>
         </Component>
         <Component class="javax.swing.JToggleButton" name="jToggleButton1">
-          <Properties>
-            <Property name="label" type="java.lang.String" value=""/>
-          </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jToggleButton1MouseClicked"/>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jToggleButton1ActionPerformed"/>

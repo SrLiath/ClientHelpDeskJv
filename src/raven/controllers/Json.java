@@ -2,35 +2,24 @@ package raven.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.BufferedReader;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import javax.swing.*;
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import java.io.DataOutputStream;
-
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -516,7 +505,9 @@ public static void uploadFile(String sessionToken, String appToken, String apiUr
             // Crie uma entidade multipart para o upload de arquivo
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addTextBody("uploadManifest", uploadManifest, ContentType.APPLICATION_JSON);
-            builder.addBinaryBody("filename[0]", new File(filePath), ContentType.DEFAULT_BINARY, "file.txt");
+            File file = new File(filePath);
+            String fileName = file.getName();
+            builder.addBinaryBody("filename[0]", file, ContentType.DEFAULT_BINARY, fileName);
 
             // Defina a entidade do corpo da solicitação
             HttpEntity multipart = builder.build();
@@ -535,5 +526,50 @@ public static void uploadFile(String sessionToken, String appToken, String apiUr
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }    
+    } 
+public static void downloadFile(JSONObject json) {
+        String id = Integer.toString(json.getInt("id"));
+        String nome = json.getString("filename");
+
+        String session = getS();
+        String app = getA();
+        String user = getU();
+        String accept = "application/octet-stream";
+        String url = getUrl() + "Document/" + id + "?app_token=" + app + "&user_token=" + user + "&session_token=" + session +"&alt=media&id="+id;
+
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setSelectedFile(new File(nome));
+        fileChooser.setDialogTitle("Salvar Arquivo");
+        
+        int userSelection = fileChooser.showSaveDialog(null);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            try {
+                URL fileUrl = new URL(url);
+                HttpURLConnection connection = (HttpURLConnection) fileUrl.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setRequestProperty("Session-Token", session);
+                connection.setRequestProperty("App-Token", app);
+                connection.setRequestProperty("Accept", accept);
+
+                try (InputStream in = connection.getInputStream();
+                     FileOutputStream out = new FileOutputStream(fileToSave)) {
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+
+                    while ((bytesRead = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, bytesRead);
+                    }
+                }
+
+                System.out.println("Arquivo baixado com sucesso!");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.err.println("Erro ao baixar o arquivo: " + e.getMessage());
+            }
+        }
+    }
 }

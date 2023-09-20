@@ -57,6 +57,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 /**
@@ -72,6 +73,10 @@ public class FormDashboard extends javax.swing.JPanel {
     private static TimerTask tarefa;
     private static Timer timer = new Timer();
     private static String apiResponsex;
+    private static String localHash;
+    private static String atualHash;
+    private static String apiHash;
+
 
     private static ObjectMapper objectMapper = new ObjectMapper();
     public FormDashboard() throws IOException, URISyntaxException, ParseException {
@@ -88,6 +93,7 @@ public class FormDashboard extends javax.swing.JPanel {
             timer.purge();
             tarefaEmExecucao = false;
             timer = new Timer();
+            
 
         }
         if (!tarefaEmExecucao) {
@@ -96,8 +102,8 @@ public class FormDashboard extends javax.swing.JPanel {
                 @Override
 public void run() {
     try {
-        apiBellCheck = Json.makeGetRequestPanel(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), "0");
-
+        apiBellCheck = Json.makeGetRequestBell(Json.getUrl() + "search/Ticket/", Json.getS(), Json.getA(), Json.getU(), "0");
+        apiHash = Local.calculateHash(apiBellCheck);
         File arquivo = new File("bell.json");
         ObjectMapper objectMapper = new ObjectMapper();
         
@@ -108,7 +114,7 @@ public void run() {
         
         // Read the local "bell.json" file and parse it as JSON.
         JsonNode localBell = objectMapper.readTree(arquivo);
-
+        localHash = Local.calculateHash(localBell.toString());
         // Compare the values in the "data" array's "19" field with the new apiBellCheck response.
         JsonNode apiDataArray = objectMapper.readTree(apiBellCheck).get("data");
         JsonNode localDataArray = localBell.get("data");
@@ -127,10 +133,15 @@ public void run() {
                 ImageIcon scaledIconb = new ImageIcon(imgScaleb);
                 bellRingInsta.setIcon(scaledIconb); 
                 bellWinCheck++;
+                if(bellWinCheck == 1){
+                    atualHash = localHash;
+                }
                 break;
-            }
+            }  
         }
-        if(bellWinCheck == 1){
+        
+        if(bellWinCheck == 1 || !atualHash.equals(apiHash)){
+            atualHash = apiHash;
            TrayIcon tray = Application.returnTray();
            tray.displayMessage("Nova Atualização em seu chamado", "Acesse seu aplicativo helpDesk para verificar.", TrayIcon.MessageType.NONE);
         }
@@ -138,6 +149,8 @@ public void run() {
     } catch (IOException ex) {
         Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
     }               catch (URISyntaxException ex) { 
+                        Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (NoSuchAlgorithmException ex) {
                         Logger.getLogger(FormDashboard.class.getName()).log(Level.SEVERE, null, ex);
                     } 
 }

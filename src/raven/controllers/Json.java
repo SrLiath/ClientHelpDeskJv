@@ -1,6 +1,7 @@
 package raven.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import javax.swing.*;
 import java.io.BufferedInputStream;
@@ -246,8 +247,7 @@ public class Json {
          
   public static String makeGetRequestPanel(String baseUrl, String sessionToken, String appToken, String userToken, String filtro) throws IOException, URISyntaxException {
         try {
-            System.out.println(filtro);
-            HttpClient httpClient = HttpClients.createDefault();
+             HttpClient httpClient = HttpClients.createDefault();
 
             // Construct the URL with parameters
             URIBuilder uriBuilder = new URIBuilder(baseUrl);
@@ -260,6 +260,43 @@ public class Json {
             uriBuilder.addParameter("criteria[0][field]", "12");
             uriBuilder.addParameter("criteria[0][searchtype]", "equals");
             uriBuilder.addParameter("criteria[0][value]", filtro);
+            uriBuilder.addParameter("criteria[2][field]", "1");
+            uriBuilder.addParameter("criteria[2][searchtype]", "contains");
+            uriBuilder.addParameter("criteria[2][value]", java.net.InetAddress.getLocalHost().getHostName());
+            uriBuilder.addParameter("order", "DESC");
+            uriBuilder.addParameter("sort", "2");
+            uriBuilder.addParameter("range", "0-100");
+
+            HttpGet httpGet = new HttpGet(uriBuilder.build());
+
+            httpGet.setHeader("Accept", "*/*");
+            httpGet.setHeader("Accept-Encoding", "gzip, deflate, br");
+            httpGet.setHeader("Connection", "keep-alive");
+
+            HttpResponse response = httpClient.execute(httpGet);
+
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                return EntityUtils.toString(response.getEntity());
+            } else {
+                return EntityUtils.toString(response.getEntity());
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+  public static String makeGetRequestBell(String baseUrl, String sessionToken, String appToken, String userToken, String filtro) throws IOException, URISyntaxException {
+        try {
+             HttpClient httpClient = HttpClients.createDefault();
+
+            // Construct the URL with parameters
+            URIBuilder uriBuilder = new URIBuilder(baseUrl);
+            uriBuilder.addParameter("session_token", sessionToken);
+            uriBuilder.addParameter("app_token", appToken);
+            uriBuilder.addParameter("user_token", userToken);
+            uriBuilder.addParameter("criteria[1][field]", "4");
+            uriBuilder.addParameter("criteria[1][searchtype]", "equals");
+            uriBuilder.addParameter("criteria[1][value]", Integer.toString(getOwnId()));
             uriBuilder.addParameter("criteria[2][field]", "1");
             uriBuilder.addParameter("criteria[2][searchtype]", "contains");
             uriBuilder.addParameter("criteria[2][value]", java.net.InetAddress.getLocalHost().getHostName());
@@ -527,7 +564,7 @@ public static void uploadFile(String sessionToken, String appToken, String apiUr
             e.printStackTrace();
         }
     } 
-public static void downloadFile(JSONObject json) {
+    public static void downloadFile(JSONObject json) {
         String id = Integer.toString(json.getInt("id"));
         String nome = json.getString("filename");
 
@@ -535,41 +572,42 @@ public static void downloadFile(JSONObject json) {
         String app = getA();
         String user = getU();
         String accept = "application/octet-stream";
-        String url = getUrl() + "Document/" + id + "?app_token=" + app + "&user_token=" + user + "&session_token=" + session +"&alt=media&id="+id;
+        String url = getUrl() + "Document/" + id + "?app_token=" + app + "&user_token=" + user + "&session_token=" + session + "&alt=media&id=" + id;
 
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setSelectedFile(new File(nome));
-        fileChooser.setDialogTitle("Salvar Arquivo");
-        
-        int userSelection = fileChooser.showSaveDialog(null);
+        try {
+            // Determine o diretório temporário (%temp%)
+            String tempDir = System.getProperty("java.io.tmpdir");
 
-        if (userSelection == JFileChooser.APPROVE_OPTION) {
-            File fileToSave = fileChooser.getSelectedFile();
-            try {
-                URL fileUrl = new URL(url);
-                HttpURLConnection connection = (HttpURLConnection) fileUrl.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Session-Token", session);
-                connection.setRequestProperty("App-Token", app);
-                connection.setRequestProperty("Accept", accept);
+            // Construa o caminho completo do arquivo temporário
+            String filePath = tempDir + File.separator + nome;
 
-                try (InputStream in = connection.getInputStream();
-                     FileOutputStream out = new FileOutputStream(fileToSave)) {
+            URL fileUrl = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) fileUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Session-Token", session);
+            connection.setRequestProperty("App-Token", app);
+            connection.setRequestProperty("Accept", accept);
 
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
+            try (InputStream in = connection.getInputStream();
+                 FileOutputStream out = new FileOutputStream(filePath)) {
 
-                    while ((bytesRead = in.read(buffer)) != -1) {
-                        out.write(buffer, 0, bytesRead);
-                    }
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, bytesRead);
                 }
-
-                System.out.println("Arquivo baixado com sucesso!");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("Erro ao baixar o arquivo: " + e.getMessage());
             }
+
+            System.out.println("Arquivo baixado com sucesso! Caminho do arquivo: " + filePath);
+
+            // Abrir o arquivo com o programa padrão do sistema
+            File fileToOpen = new File(filePath);
+            Desktop.getDesktop().open(fileToOpen);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Erro ao baixar e abrir o arquivo: " + e.getMessage());
         }
     }
 }

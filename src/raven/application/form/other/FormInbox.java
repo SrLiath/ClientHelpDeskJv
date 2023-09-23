@@ -206,40 +206,48 @@ subCategoria.addActionListener(new ActionListener() {
         fileListPanel.revalidate();
         fileListPanel.repaint();
     }
-
+        
 private boolean isInputValid() {
     boolean isValid = true;
-    
-    if (tituloChamado.getText().trim().isEmpty()) {
+
+    if (tituloChamado.getText().trim().isEmpty() ||
+        solicitanteChamado.getText().trim().isEmpty() ||
+        (categoriaChamado.getSelectedItem() == null || categoriaChamado.getSelectedItem().equals("---")) ||
+        descricaoChamado.getText().trim().isEmpty()) {
+        
         isValid = false;
-        highlightField(tituloChamado);
-    } else {
-        removeHighlight(tituloChamado);
+        
+        if (tituloChamado.getText().trim().isEmpty()) {
+            highlightField(tituloChamado);
+        } else {
+            removeHighlight(tituloChamado);
+        }
+
+        if (solicitanteChamado.getText().trim().isEmpty()) {
+            highlightField(solicitanteChamado);
+        } else {
+            removeHighlight(solicitanteChamado);
+        }
+
+        if (categoriaChamado.getSelectedItem() == null || categoriaChamado.getSelectedItem().equals("---")) {
+            highlightField(categoriaChamado);
+        } else {
+            removeHighlight(categoriaChamado);
+        }
+
+        if (descricaoChamado.getText().trim().isEmpty()) {
+            highlightField(descricaoChamado);
+        } else {
+            removeHighlight(descricaoChamado);
+        }
+        
+        // Exibe uma mensagem de erro para preencher todos os campos
+        JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos.", "Erro", JOptionPane.ERROR_MESSAGE);
     }
-    
-    if (solicitanteChamado.getText().trim().isEmpty()) {
-        isValid = false;
-        highlightField(solicitanteChamado);
-    } else {
-        removeHighlight(solicitanteChamado);
-    }
-    
-    if (categoriaChamado.getSelectedItem() == null || categoriaChamado.getSelectedItem().equals("---")) {
-        isValid = false;
-        highlightField(categoriaChamado);
-    } else {
-        removeHighlight(categoriaChamado);
-    }
-    
-    if (descricaoChamado.getText().trim().isEmpty()) {
-        isValid = false;
-        highlightField(descricaoChamado);
-    } else {
-        removeHighlight(descricaoChamado);
-    }
-    
+
     return isValid;
 }
+
 
 private JSONObject createJsonObject() throws IOException, URISyntaxException {
     JSONObject jsonObject = new JSONObject();

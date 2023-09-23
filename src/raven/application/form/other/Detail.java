@@ -58,7 +58,9 @@ public class Detail extends javax.swing.JPanel {
         String tituloChat = detalhesJSON.optString("name", "");
         String textContentChat = detalhesJSON.optString("content", "");
         
-
+        if(status.equals("6")){
+            textMsg.setEnabled(false);
+        }
 
         
         dataCriacaoc = inputDateFormat.parse(dataCriacaoStr);

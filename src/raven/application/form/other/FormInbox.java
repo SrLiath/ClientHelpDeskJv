@@ -256,7 +256,7 @@ private JSONObject createJsonObject() throws IOException, URISyntaxException {
     System.out.println(categoriaChamado.getSelectedItem().toString() + subCategoria.getSelectedItem().toString() + acaoChamado.getSelectedItem().toString());
     jsonObject.put("itilcategories_id", Dicio.makeCategoryReverse(categoriaChamado.getSelectedItem().toString(), subCategoria.getSelectedItem().toString(), acaoChamado.getSelectedItem().toString()));          // Include acao
     jsonObject.put("urgency", Dicio.urgenciaReverse(urgencia.getSelectedItem().toString()));        // Include urgencia
-    jsonObject.put("content", descricaoChamado.getText().trim() + Local.getAnyId());
+    jsonObject.put("content", tituloChamado.getText().trim() + " <br>" + descricaoChamado.getText().trim() + Local.getAnyId());
     jsonObject.put("_users_id_requester", Json.getOwnId());
     jsonObject.put("priority", "3");
     jsonObject.put("impact", "3");

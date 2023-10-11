@@ -13,13 +13,15 @@ public class DetailChatOwn extends javax.swing.JPanel {
     /**
      * Creates new form DetailChat
      */
-    public DetailChatOwn(String user, String content) {
-        initComponents();
-        nomeChat.setText(user);
-        mensagemChat.setText(content);
-        mensagemChat.setEnabled(false);
+public DetailChatOwn(String user, String content) {
+    initComponents();
+    nomeChat.setText(user);
+    content = content.replaceAll("<[^>]*>", "");
 
-    }
+    mensagemChat.setText(content);
+    mensagemChat.setEnabled(false);
+}
+
 
     /**
      * This method is called from within the constructor to initialize the form.

@@ -3,7 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 package raven.application.form.other;
-
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;    
 /**
  *
  * @author Sammy Guergachi <sguergachi at gmail.com>
@@ -16,6 +17,7 @@ public class DetailChatOwn extends javax.swing.JPanel {
 public DetailChatOwn(String user, String content) {
     initComponents();
     nomeChat.setText(user);
+    content = Jsoup.parse(content).text();
     content = content.replaceAll("<[^>]*>", "");
 
     mensagemChat.setText(content);
